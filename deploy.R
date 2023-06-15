@@ -1,0 +1,6 @@
+rsconnect::setAccountInfo(name='rahul-sharma',
+                          token='003E237C891DF1DA20114CC275B0A532',
+                          secret='bCh8Dz3in+42xkgHnfolJbkCl/CJ1nSboxtuIU2K')
+
+# Deploy
+deployApp(appFiles = c("app.R","iv.rds"))
