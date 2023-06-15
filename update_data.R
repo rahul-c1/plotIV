@@ -138,19 +138,21 @@ CBOE_Options = function(symbol,EXERCISE){
 # function to update data set
 update_data <- function(since_id) {
   DAYTODAY = format(Sys.Date(), format="%Y%m%d")
-  td <- readRDS(paste0("spy",DAYTODAY,".rds"))
-  yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
-  iv <- bind_rows(td,yt)
-  saveRDS(iv,paste0("iv",".rds"))
+  # td <- readRDS(paste0("spy",DAYTODAY,".rds"))
+  # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
+  # iv <- bind_rows(td,yt)
+  # saveRDS(iv,paste0("iv",".rds"))
   iv <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
   
+  spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
+  
+  saveRDS(spy,paste0("spy",DAYTODAY,".rds"))
+  
+  iv <- bind_rows(iv,spy)
+  
+  saveRDS(iv,paste0("iv",".rds"))
   
   
-  new_data_df <- new_data()
-  likes <- readr::read_rds('likes.rds')
-  likes <- rbind(new_data_df, likes)
-  likes <- distinct(likes)
-  readr::write_rds(likes, 'likes.rds')
 }
 
 # run update
