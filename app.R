@@ -188,7 +188,8 @@ server <- function(input, output) {
     #db4 <- readRDS(paste0("spy",format(Sys.Date()-3, format="%Y%m%d"),".rds"))
     p <- iv %>%  #bind_rows(yt,td) %>%
       filter(Symbol=="SPY") %>%
-      filter(expiry=={{expiry}})%>%
+      #filter(expiry=={{expiry}})%>%
+      filter(expiry=="2023-07-21") %>%
       select(strike,iv,flag,Date,expiry) %>%
       mutate(strike=as.numeric(strike)) %>%
       #filter(between(strike,370,435)) %>%
