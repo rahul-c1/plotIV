@@ -142,15 +142,15 @@ update_data <- function(since_id) {
   # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
   # iv <- bind_rows(td,yt)
   # saveRDS(iv,paste0("iv",".rds"))
-  iv <- readRDS(paste0("iv",".rds"))
+  #iv <- readRDS(paste0("iv",".rds"))
   
   spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
   
   saveRDS(spy,paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
   
-  iv <- bind_rows(iv,spy)
+  #iv <- bind_rows(iv,spy)
   
-  saveRDS(iv,paste0("iv",".rds"))
+  #saveRDS(spy,paste0("iv",".rds"))
   
   
 }
