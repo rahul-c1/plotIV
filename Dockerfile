@@ -3,4 +3,5 @@ RUN install2.r rsconnect jsonlite dplyr stringr RQuantLib derivmkts lubridate pb
 WORKDIR /home/ivplot 
 COPY app.R app.R
 COPY deploy.R deploy.R
+COPY iv.rds iv.rds
 CMD Rscript deploy.R
