@@ -33,8 +33,8 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   output$plot <- renderPlot({
-    friday3 <- function(start.year, end.year){
-      d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), by = "3 month")[-1]
+    friday3 <- function(start.year, end.year,interval = "3 month"){
+      d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), interval = "1 month")[-1]
       d <- as.Date(d)
       res <- lapply(d, function(x){
         s <- seq(x, by = "day", length.out = 28)
