@@ -20,7 +20,7 @@ jobs:
 
        - name: Install dependencies
          run: |
-            install.packages(c("jsonlite", "dplyr", "RQuantLib", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table"))
+            install.packages(c("jsonlite", "dplyr", "RQuantLib", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod"))
          shell: Rscript {0}
 
        - name: Update data
