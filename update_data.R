@@ -150,7 +150,7 @@ update_data <- function(since_id) {
   
   iv <- bind_rows(iv,spy)
   
-  #saveRDS(spy,paste0("iv",".rds"))
+  saveRDS(spy,paste0("iv",".rds"))
   
   
 }
