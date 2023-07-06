@@ -17,15 +17,24 @@ library(lubridate)
 # 
 # AAPL[options.expiry(AAPL)]
 library(ggplot2)
-
+library(shinyWidgets)
 
 # Run the application
 ui <- fluidPage(
-  titlePanel("Seasonality"),
-  helpText("Select a stock with IPO>4 years to examine. Information will be collected from Google/Yahoo finance."),
-  textInput("symb", "Symbol", value="SPY"),
-  dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
-  
+  titlePanel("IV Skew"),
+  helpText("Here we can see the skew of SPY over past few days. Source: CBOE"),
+  #textInput("symb", "Symbol", value="SPY"),
+  #dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
+  airDatepickerInput("dates",
+                     label = "Expiry month",
+                     value = format(Sys.Date(), format="%Y-%m-%d"),
+                     maxDate = format(Sys.Date()+365, format="%Y%m%d"),
+                     minDate = format(Sys.Date(), format="%Y-%m-%d"),
+                     view = "months", 
+                     minView = "months", 
+                     dateFormat = "MMM-yyyy"),
+
+
   plotOutput("plot")
 )
 
@@ -45,7 +54,7 @@ server <- function(input, output) {
       res <- Reduce(c, res)
       data.frame(Month = format(d, "%Y-%B"), Day = res)
     }
-    expiry <- friday3(year(input$dates[1]),year(input$dates[2])) %>% filter(Day>Sys.Date()) %>% pull(2) %>% head(1)
+    expiry <- friday3(year(input$dates[1]),year(input$dates[1])) %>% filter(Day>input$dates[1]) %>% pull(2) %>% head(1)
     
     #stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
 
@@ -190,8 +199,8 @@ server <- function(input, output) {
     #db4 <- readRDS(paste0("spy",format(Sys.Date()-3, format="%Y%m%d"),".rds"))
     p <- iv %>%  #bind_rows(yt,td) %>%
       filter(Symbol=="SPY") %>%
-      #filter(expiry=={{expiry}})%>%
-      filter(expiry=="2023-07-21") %>%
+      filter(expiry=={{expiry}})%>%
+      #filter(expiry=="2023-07-21") %>%
       filter((Date>=DAY3DAYSBACK)& (Date<=DAY1DAYSBACK)) %>% 
       select(strike,iv,flag,Date,expiry) %>%
       mutate(strike=as.numeric(strike)) %>%
