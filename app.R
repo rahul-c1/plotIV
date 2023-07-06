@@ -192,7 +192,7 @@ server <- function(input, output) {
       filter(Symbol=="SPY") %>%
       #filter(expiry=={{expiry}})%>%
       filter(expiry=="2023-07-21") %>%
-      filter(between(Date,DAY3DAYSBACK,DAY1DAYSBACK)) %>% 
+      filter((Date>=DAY3DAYSBACK)& (Date<=DAY1DAYSBACK)) %>% 
       select(strike,iv,flag,Date,expiry) %>%
       mutate(strike=as.numeric(strike)) %>%
       #filter(between(strike,370,435)) %>%
