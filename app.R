@@ -178,6 +178,8 @@ server <- function(input, output) {
       opts
     }
     DAYTODAY = format(Sys.Date(), format="%Y%m%d")
+    DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
+    DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
     # td <- readRDS(paste0("spy",DAYTODAY,".rds"))
     # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
     # iv <- bind_rows(td,yt)
@@ -190,6 +192,7 @@ server <- function(input, output) {
       filter(Symbol=="SPY") %>%
       #filter(expiry=={{expiry}})%>%
       filter(expiry=="2023-07-21") %>%
+      filter(between(Date,DAY3DAYSBACK,DAY1DAYSBACK)) %>% 
       select(strike,iv,flag,Date,expiry) %>%
       mutate(strike=as.numeric(strike)) %>%
       #filter(between(strike,370,435)) %>%
