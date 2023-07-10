@@ -216,8 +216,26 @@ server <- function(input, output) {
            x     = "Strikes",
            y     = "IV")
     
-p    
-  },height = 640, width = 1080)
+    stk <- iv %>% count(stkClose) %>% arrange(-n) %>% slice(1) %>% pull(stkClose) %>% plyr::round_any(10)
+    p2 <- iv %>% filter(Date == max(Date)) %>% 
+      filter(strike=={{ stk }}) %>%
+      select(expiry,iv,flag) %>% mutate(dt=lubridate::mday((expiry))) %>%
+      ggplot(aes(x=expiry,y=iv)) +
+      geom_point()+
+      facet_wrap(~flag,scales = "free")+
+      scale_color_manual(values=c('grey','pink','maroon','red'))+
+      ggthemes::theme_excel_new()+coord_flip()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                                       panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+      labs(title = paste0("IV for ",{{stk}}," Strike"," for all Expiries"),
+           subtitle = paste0("Data as of ",lubridate::today()),
+           x     = "Strikes",
+           y     = "IV")
+    
+    cowplot::plot_grid(
+      p, p2,
+      labels = "AUTO", ncol = 1
+    )
+  },height = 860, width = 1080)
 
   
 
@@ -275,14 +293,7 @@ p
   #        y     = "IV")
   # 
   # 
-  # spy %>%
-  #   filter(strike=="410") %>%
-  #   select(expiry,iv,flag) %>% mutate(dt=lubridate::mday((expiry))) %>%
-  #   ggplot(aes(x=expiry,y=iv)) +
-  #   geom_point()+
-  #   facet_wrap(~flag,scales = "free")+
-  #   scale_color_manual(values=c('grey','pink','maroon','red'))+
-  #   ggthemes::theme_excel_new()+coord_flip()
+
   # 
   # 
   # monthlyexp <- spy %>%
