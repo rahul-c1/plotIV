@@ -143,6 +143,8 @@ update_data <- function(since_id) {
   # iv <- bind_rows(td,yt)
   # saveRDS(iv,paste0("iv",".rds"))
   iv <- readRDS(paste0("iv",".rds"))
+  max_dt <- unique(iv$Date) %>% tail(7) %>% head(1)
+  iv <- iv %>% filter(Date>max_dt)
   
   spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
   
