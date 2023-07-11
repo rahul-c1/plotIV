@@ -21,7 +21,7 @@ jobs:
 
        - name: Install dependencies
          run: |
-            install.packages(c("shinyWidgets","ggplot2","RQuantLib", "jsonlite", "dplyr", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod"))
+            install.packages(c("RQuantLib","shinyWidgets","ggplot2", "jsonlite", "dplyr", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod"))
          shell: Rscript {0}
 
        - name: Update data
