@@ -158,6 +158,6 @@ update_data <- function(since_id) {
 }
 
 # run update if it's a business day or yesterday was a business day
-if(isBusinessDay(calendar="UnitedStates/NYSE", dates = Sys.Date())){
+#if(isBusinessDay(calendar="UnitedStates/NYSE", dates = Sys.Date())){
 update_data()
-}
+#}
