@@ -188,7 +188,7 @@ server <- function(input, output) {
     }
     DAYTODAY = format(Sys.Date(), format="%Y%m%d")
     DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
-    DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
+    DAY4DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
     # td <- readRDS(paste0("spy",DAYTODAY,".rds"))
     # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
     # iv <- bind_rows(td,yt)
@@ -211,7 +211,7 @@ server <- function(input, output) {
       facet_wrap(~flag,scales = "free")+
       scale_color_manual(values=c('grey','pink','maroon','red'))+
       ggthemes::theme_excel_new()+
-      labs(title = paste0("Change in IV Skew for ",{{unique(iv$Symbol)}}," ",{{expiry}}," Expiry as of ",lubridate::today()),
+      labs(title = paste0("Change in IV Skew for ",{{unique(iv$Symbol)}}," ",{{expiry}}," Expiry as of ",lubridate::today()-1),
            subtitle = "IV skew for Calls and Put strikes for Month expiry",
            x     = "Strikes",
            y     = "IV")
