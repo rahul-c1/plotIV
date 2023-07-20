@@ -343,7 +343,7 @@ server <- function(input, output) {
                     
                     size=1.5, color="#b2b2b2", size_x=3, size_xend = 3,
                     
-                    colour_x = 'grey', colour_xend = blue)
+                    colour_x = 'grey', colour_xend = blue)+
       
       
       
@@ -353,24 +353,24 @@ server <- function(input, output) {
       
       #           color=blue, size=3, vjust=-1.5, fontface="bold", family="Lato") +
       
-      #   geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d<0),
-      
-    #             aes(x=oid.td, y=st, label="Dn"),
-    
-    #             color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
-    
-    
-    
+         # geom_text(data=filter(dataC%>% arrange(-OI_Dollar.td) %>% slice(1:10), diff_oi_d<0),
+         # 
+         #         aes(x=oid.td, y=st, label="Dn"),
+         # 
+         #         color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+         # 
     
     
-    # geom_text(data=dataC, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,1),suffix='M')),
-    #           
-    #           color=red, size=2.75, vjust=2.5, family="Lato") +
-    #   
-    #   geom_text(data=dataC,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,1),suffix='M')),
-    #             
-    #             color=blue, size=2.75, vjust=2.5, family="Lato")+
-    #   
+    
+
+    geom_text(data=dataC, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,1),suffix='M')),
+
+              color=red, size=2.75, vjust=2.5, family="Lato") +
+
+      geom_text(data=dataC,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,1),suffix='M')),
+
+                color=blue, size=2.75, vjust=2.5, family="Lato")
+
     #   
     #   
     #   geom_rect(data=dataC, aes(xmin=max(cmp_C$OI_Dollar.td)+1e5, xmax=max(cmp_C$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
