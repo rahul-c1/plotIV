@@ -322,8 +322,8 @@ server <- function(input, output) {
     cmp_C <- cmp_C %>% mutate(pct=diff_oi_d/OI_Dollar.td)
     cmp_P <- cmp_P %>% mutate(pct=diff_oi_d/OI_Dollar.td)
     
-    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:10) #%>% mutate(strike=as.factor(strike))
-    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:10) #%>% mutate(strike=as.factor(strike))
+    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
+    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
     
     library(ggplot2)
     
