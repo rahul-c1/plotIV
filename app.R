@@ -369,74 +369,74 @@ server <- function(input, output) {
 
       geom_text(data=dataC,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,1),suffix='M')),
 
-                color=blue, size=2.75, vjust=2.5, family="Lato")
+                color=blue, size=2.75, vjust=2.5, family="Lato")+
 
-    #   
-    #   
-    #   geom_rect(data=dataC, aes(xmin=max(cmp_C$OI_Dollar.td)+1e5, xmax=max(cmp_C$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
-    #   
-    #   geom_text(data=filter(dataC, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(cmp_C$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
-    #   
-    #   # geom_text(data=cmp_C,
-    #   #           
-    #   #           aes(x=max(cmp_C$OI_Dollar.td)+1.5e5, y=470, label="%Change"),
-    #   #           
-    #   #           color="black", size=3.1, vjust=-2, fontface="bold", family="Lato") +
-    #   
-    #   # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
-    #   
-    #   # scale_y_discrete(expand=c(350,450)) +
-    #   
-    # 
-    # 
-    # labs(x=NULL, y=NULL, title="Call $OI",
-    #      
-    #      #subtitle="Change",
-    #      
-    #      caption=paste0("As of:\n\n" , lubridate::today()))+
-    #   
-    #   
-    #   
-    #   
-    #   
-    #   theme_bw(base_family="Lato") +
-    #   
-    #   theme(
-    #     
-    #     #panel.grid.major=element_blank(),
-    #     
-    #     panel.grid.minor=element_blank(),
-    #     
-    #     panel.border=element_blank(),
-    #     
-    #     axis.ticks=element_blank(),
-    #     
-    #     axis.text.x=element_blank(),
-    #     
-    #     plot.title=element_text(size = 16, face="bold"),
-    #     
-    #     plot.title.position = "plot",
-    #     
-    #     plot.subtitle=element_text(face="italic", size=12, margin=margin(b=12)),
-    #     
-    #     plot.caption=element_text(size=8, margin=margin(t=12), color="#7a7d7e")
-    #     
-    #   )
+
+
+      geom_rect(data=dataC, aes(xmin=max(cmp_C$OI_Dollar.td)+1e5, xmax=max(cmp_C$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
+
+      geom_text(data=filter(dataC, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(cmp_C$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+
+      # geom_text(data=cmp_C,
+      #
+      #           aes(x=max(cmp_C$OI_Dollar.td)+1.5e5, y=470, label="%Change"),
+      #
+      #           color="black", size=3.1, vjust=-2, fontface="bold", family="Lato") +
+
+      # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
+
+      # scale_y_discrete(expand=c(350,450)) +
+
+
+
+    labs(x=NULL, y=NULL, title="Call $OI",
+
+         #subtitle="Change",
+
+         caption=paste0("As of:\n\n" , lubridate::today()))+
+
+
+
+
+
+      theme_bw(base_family="Lato") +
+
+      theme(
+
+        #panel.grid.major=element_blank(),
+
+        panel.grid.minor=element_blank(),
+
+        panel.border=element_blank(),
+
+        axis.ticks=element_blank(),
+
+        axis.text.x=element_blank(),
+
+        plot.title=element_text(size = 16, face="bold"),
+
+        plot.title.position = "plot",
+
+        plot.subtitle=element_text(face="italic", size=12, margin=margin(b=12)),
+
+        plot.caption=element_text(size=8, margin=margin(t=12), color="#7a7d7e")
+
+      )
     
-   # p4 <-  ggplot() +
-   #   
-   #   # geom_segment(data=c %>% arrange(-oid.td) %>% slice(1:10), aes(y=0, yend=st, x=oid.yt, xend=oid.td),
-   #   
-   #   #               color="#b2b2b2", size=0.15)
-   #   
-   #   geom_dumbbell(data=dataP, aes(y=strike, x=OI_Dollar.yt, xend=OI_Dollar.td),
-   #                 
-   #                 size=1.5, color="#b2b2b2", size_x=3, size_xend = 3,
-   #                 
-   #                 colour_x = 'grey', colour_xend = blue)+
-   #   
-   #   
-   #   
+   p4 <-  ggplot() +
+
+     # geom_segment(data=c %>% arrange(-oid.td) %>% slice(1:10), aes(y=0, yend=st, x=oid.yt, xend=oid.td),
+
+     #               color="#b2b2b2", size=0.15)
+
+     geom_dumbbell(data=dataP, aes(y=strike, x=OI_Dollar.yt, xend=OI_Dollar.td),
+
+                   size=1.5, color="#b2b2b2", size_x=3, size_xend = 3,
+
+                   colour_x = 'grey', colour_xend = blue)+
+
+
+
    #   # geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d>0),
    #   
    #   #           aes(x=oid.td, y=st, label="Up"),
@@ -453,66 +453,66 @@ server <- function(input, output) {
    # 
    # 
    # 
-   # geom_text(data=dataP, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,1),suffix='M')),
-   #           
-   #           color=red, size=2.75, vjust=2.5, family="Lato") +
-   #   
-   #   geom_text(data=dataP,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,1),suffix='M')),
-   #             
-   #             color=blue, size=2.75, vjust=2.5, family="Lato")+
-   #   
+   geom_text(data=dataP, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,1),suffix='M')),
+
+             color=red, size=2.75, vjust=2.5, family="Lato") +
+
+     geom_text(data=dataP,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,1),suffix='M')),
+
+               color=blue, size=2.75, vjust=2.5, family="Lato")+
+
    #   
    #   
    #   geom_rect(data=dataP, aes(xmin=max(dataP$OI_Dollar.td)+1e5, xmax=max(dataP$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
    #   
-   #   geom_text(data=filter(dataP, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(dataP$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
-   #   
-   #   # geom_text(data=cmp_C,
-   #   #           
-   #   #           aes(x=max(cmp_C$OI_Dollar.td)+1.5e5, y=470, label="%Change"),
-   #   #           
-   #   #           color="black", size=3.1, vjust=-2, fontface="bold", family="Lato") +
-   #   
-   #   # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
-   #   
-   #   # scale_y_discrete(expand=c(350,450)) +
-   #   
-   # 
-   # 
-   # labs(x=NULL, y=NULL, title="Puts $OI",
-   #      
-   #     # subtitle="Change",
-   #      
-   #      caption=paste0("As of:\n\n" , lubridate::today()))+
-   #   
-   #   
-   #   
-   #   
-   #   
-   #   theme_bw(base_family="Lato") +
-   #   
-   #   theme(
-   #     
-   #     #panel.grid.major=element_blank(),
-   #     
-   #     panel.grid.minor=element_blank(),
-   #     
-   #     panel.border=element_blank(),
-   #     
-   #     axis.ticks=element_blank(),
-   #     
-   #     axis.text.x=element_blank(),
-   #     
-   #     plot.title=element_text(size = 16, face="bold"),
-   #     
-   #     plot.title.position = "plot",
-   #     
-   #     plot.subtitle=element_text(face="italic", size=12, margin=margin(b=12)),
-   #     
-   #     plot.caption=element_text(size=8, margin=margin(t=12), color="#7a7d7e")
-   #     
-   #   )
-   # 
+     geom_text(data=filter(dataP, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(dataP$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+
+     # geom_text(data=cmp_C,
+     #
+     #           aes(x=max(cmp_C$OI_Dollar.td)+1.5e5, y=470, label="%Change"),
+     #
+     #           color="black", size=3.1, vjust=-2, fontface="bold", family="Lato") +
+
+     # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
+
+     # scale_y_discrete(expand=c(350,450)) +
+
+
+
+   labs(x=NULL, y=NULL, title="Puts $OI",
+
+       # subtitle="Change",
+
+        caption=paste0("As of:\n\n" , lubridate::today()))+
+
+
+
+
+
+     theme_bw(base_family="Lato") +
+
+     theme(
+
+       #panel.grid.major=element_blank(),
+
+       panel.grid.minor=element_blank(),
+
+       panel.border=element_blank(),
+
+       axis.ticks=element_blank(),
+
+       axis.text.x=element_blank(),
+
+       plot.title=element_text(size = 16, face="bold"),
+
+       plot.title.position = "plot",
+
+       plot.subtitle=element_text(face="italic", size=12, margin=margin(b=12)),
+
+       plot.caption=element_text(size=8, margin=margin(t=12), color="#7a7d7e")
+
+     )
+
     
     
     
@@ -528,7 +528,7 @@ server <- function(input, output) {
     
     
     cowplot::plot_grid(
-      p1, p2, p3,
+      p1, p2, p3,p4,
       #ncol = 1,nrow=4,labels = "",
            labels = "", ncol = 1
     )
