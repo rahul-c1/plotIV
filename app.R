@@ -30,23 +30,32 @@ library(shinyWidgets)
 # Run the application
 ui <- fluidPage(
   titlePanel("IV Skew"),
-  helpText("Here we can see the skew of SPY over past few days. Source: CBOE"),
+  helpText("Source: CBOE"),
   #textInput("symb", "Symbol", value="SPY"),
   #dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
-  airDatepickerInput("dates",
-                     label = "Expiry month",
-                     value = format(Sys.Date(), format="%Y-%m-%d"),
-                     maxDate = format(Sys.Date()+365, format="%Y%m%d"),
-                     minDate = format(Sys.Date(), format="%Y-%m-%d"),
-                     view = "months", 
-                     minView = "months", 
-                     dateFormat = "MMM-yyyy"),
+ 
 
   mainPanel(
     tabsetPanel(
-      tabPanel("IV",plotOutput("plotiv")),
-      tabPanel("$OI",plotOutput("plotoi")),
-      tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
+      tabPanel("IV", airDatepickerInput("dates",
+                                        label = "Expiry month",
+                                        value = format(Sys.Date(), format="%Y-%m-%d"),
+                                        maxDate = format(Sys.Date()+365, format="%Y%m%d"),
+                                        minDate = format(Sys.Date(), format="%Y-%m-%d"),
+                                        view = "months", 
+                                        minView = "months", 
+                                        dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
+      tabPanel("$OI",airDatepickerInput("dates",
+                                        label = "Expiry month",
+                                        value = format(Sys.Date(), format="%Y-%m-%d"),
+                                        maxDate = format(Sys.Date()+365, format="%Y%m%d"),
+                                        minDate = format(Sys.Date(), format="%Y-%m-%d"),
+                                        view = "months", 
+                                        minView = "months", 
+                                        dateFormat = "MMM-yyyy"),plotOutput("plotoi")),
+      tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
+               plotOutput("plotseason")),
+      tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
                plotOutput("plotseason"))
     )
   ),
@@ -612,6 +621,32 @@ server <- function(input, output) {
       
     },height = 760, width = 1200)
     
+    
+  
+    output$plotseasonDW <- renderPlot({
+      
+      stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
+      df_returns_daily <- stock_data_tbl %>%
+        group_by(symbol) %>%
+        tq_transmute(select=adjusted,
+                     mutate_fun=periodReturn,
+                     period="daily",
+                     col_rename="daily.returns")
+      
+      df_returns_daily %>%
+        mutate(color=if_else(daily.returns>=0.04,"h","l")) %>%
+        mutate(dd=as.factor(wday(date,label=T)),
+               mnth=as.factor(month(date,label=T))) %>%
+        ggplot(aes(dd,daily.returns))+
+        geom_violin( width=0.75) +
+        geom_point(alpha = 0.1,position = position_dodge(width=0.75))+
+        facet_wrap(~mnth,scales="free")+
+        scale_y_continuous(labels = scales::percent_format(accuracy = 1))+
+        theme_tq()
+      
+      
+      
+    },height = 760, width = 1200)
     
     
     
