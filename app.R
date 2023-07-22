@@ -532,10 +532,10 @@ server <- function(input, output) {
     
     cowplot::plot_grid(
       p4,p3,
-      #ncol = 1,nrow=4,labels = "",
-      labels = "", ncol = 2
+      ncol = 1,labels = ""
+      
     )
-  },height = 1200, width = 968)
+  },height = 1068, width = 1200)
 
   
 
