@@ -154,6 +154,95 @@ update_data <- function(since_id) {
   
   saveRDS(iv,paste0("iv",".rds"))
   
+  # First day of next month
+  first <- ceiling_date(Sys.Date(), unit = "month")
+  # Last day of next month
+  last <- ceiling_date(first, unit= "month") - days(1)
+  fridays <- seq.Date(Sys.Date(),last,by="1 day") 
+  choicedt <- format(fridays[weekdays(fridays)=="Friday"],format = "%Y-%m-%d")
+  
+  weeklies4month <- iv %>% filter(expiry %in% choicedt) 
+  
+  last2Dates <- weeklies4month %>% count(Date) %>% slice_max(Date,n=2) %>% pull(Date)
+  
+  yt_OI_C <- weeklies4month %>% filter(Date==last2Dates[2]) %>% 
+    filter(Symbol=="SPY") %>%
+    #  filter(option %like%  c("SPX22")) %>%
+    
+   # filter(expiry=={{expiry}}) %>%
+    filter(flag=="C") %>%
+    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
+    mutate(strike=as.numeric(strike)) %>%
+    mutate(OI_Dollar=open_interest*last_trade_price) %>%
+    mutate(rnk=percent_rank(OI_Dollar)) %>%
+    mutate(OI_pct=(OI_Dollar/sum(OI_Dollar))*100) %>%
+    #slice_max(rnk,n = 100) %>%
+    mutate(cum_sep_OI = cumsum(OI_pct))
+  
+  yt_OI_P <- weeklies4month %>% filter(Date==last2Dates[2]) %>% 
+    filter(Symbol=="SPY") %>%
+    #  filter(option %like%  c("SPX22")) %>%
+    
+   # filter(expiry=={{expiry}}) %>%
+    filter(flag=="P") %>%
+    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
+    mutate(strike=as.numeric(strike)) %>%
+    mutate(OI_Dollar=open_interest*last_trade_price) %>%
+    mutate(rnk=percent_rank(OI_Dollar)) %>%
+    mutate(OI_pct=(OI_Dollar/sum(OI_Dollar))*100) %>%
+    #slice_max(rnk,n = 100) %>%
+    mutate(cum_sep_OI = cumsum(OI_pct))
+  
+  
+  
+  todays_OI_C <- weeklies4month %>% filter(Date==last2Dates[1]) %>% 
+    filter(Symbol=="SPY") %>%
+    #filter(option %like%  c("SPX22")) %>%
+   # filter(expiry=={{expiry}}) %>%
+    filter(flag=="C") %>%
+    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
+    mutate(strike=as.numeric(strike)) %>%
+    mutate(OI_Dollar=open_interest*last_trade_price) %>%
+    mutate(rnk=percent_rank(OI_Dollar)) %>%
+    mutate(OI_pct=(OI_Dollar/sum(OI_Dollar))*100) %>%
+    #slice_max(rnk,n = 100) %>%
+    mutate(cum_sep_OI = cumsum(OI_pct))
+  
+  todays_OI_P <- weeklies4month %>% filter(Date==last2Dates[1]) %>% 
+    filter(Symbol=="SPY") %>%
+    #filter(option %like%  c("SPX22")) %>%
+   # filter(expiry=={{expiry}}) %>%
+    filter(flag=="P") %>%
+    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
+    mutate(strike=as.numeric(strike)) %>%
+    mutate(OI_Dollar=open_interest*last_trade_price) %>%
+    mutate(rnk=percent_rank(OI_Dollar)) %>%
+    mutate(OI_pct=(OI_Dollar/sum(OI_Dollar))*100) %>%
+    #slice_max(rnk,n = 100) %>%
+    mutate(cum_sep_OI = cumsum(OI_pct))
+  
+
+  
+  cmp_C <- yt_OI_C %>% left_join(todays_OI_C,by="strike",suffix = c(".yt",".td")) %>%
+    select(strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry.td) %>%
+    mutate(diff_oi=open_interest.td-open_interest.yt,
+           diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
+    arrange(strike) %>% setDT()
+  
+  cmp_P <- yt_OI_P %>% left_join(todays_OI_P,by="strike",suffix = c(".yt",".td")) %>%
+    select(strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry.td) %>%
+    mutate(diff_oi=open_interest.td-open_interest.yt,
+           diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
+    arrange(strike) %>% setDT()
+  
+  
+  
+  cmp_C <- cmp_C %>% mutate(pct=diff_oi_d/OI_Dollar.td)
+  cmp_P <- cmp_P %>% mutate(pct=diff_oi_d/OI_Dollar.td)  
+  
+  
+  fwrite(cmp_C,"cmp_C.csv")
+  fwrite(cmp_P,"cmp_P.csv")
   
 }
 
