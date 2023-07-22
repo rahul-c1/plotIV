@@ -9,13 +9,7 @@
 require("jsonlite");require("stringr");require("RQuantLib");require("derivmkts");require("pbapply")
 require("httr");require("rvest");require("purrr");require("data.table");library(quantmod);library(dplyr)
 library(lubridate)
-library('quantmod')
-library(xts)
-library(tsbox)
-library(dplyr)
-library(ggplot2)
-library(shiny)
-library(tidyquant)
+
 
 #library(plotly)
 # getSymbols("AAPL")
@@ -52,11 +46,11 @@ ui <- fluidPage(
                                         minDate = format(Sys.Date(), format="%Y-%m-%d"),
                                         view = "months", 
                                         minView = "months", 
-                                        dateFormat = "MMM-yyyy"),plotOutput("plotoi")),
-      tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
-               plotOutput("plotseason")),
-      tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
-               plotOutput("plotseason"))
+                                        dateFormat = "MMM-yyyy"),plotOutput("plotoi")) #,
+      #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
+          #     plotOutput("plotseason")),
+      #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
+           #    plotOutput("plotseason"))
     )
   ),
   
