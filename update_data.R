@@ -224,13 +224,13 @@ update_data <- function(since_id) {
 
   
   cmp_C <- yt_OI_C %>% left_join(todays_OI_C,by=c("strike","expiry"),suffix = c(".yt",".td")) %>%
-    select(strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry.td) %>%
+    select(strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry) %>%
     mutate(diff_oi=open_interest.td-open_interest.yt,
            diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
     arrange(strike) %>% setDT()
   
   cmp_P <- yt_OI_P %>% left_join(todays_OI_P,by=c("strike","expiry"),suffix = c(".yt",".td")) %>%
-    select(strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry.td) %>%
+    select(strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry) %>%
     mutate(diff_oi=open_interest.td-open_interest.yt,
            diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
     arrange(strike) %>% setDT()
