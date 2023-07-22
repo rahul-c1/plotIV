@@ -27,26 +27,12 @@ ui <- fluidPage(
   helpText("Source: CBOE"),
   #textInput("symb", "Symbol", value="SPY"),
   #dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
- 
+  airDatepickerInput("dates",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),
 
   mainPanel(
     tabsetPanel(
-      tabPanel("IV", airDatepickerInput("dates",
-                                        label = "Expiry month",
-                                        value = format(Sys.Date(), format="%Y-%m-%d"),
-                                        maxDate = format(Sys.Date()+365, format="%Y%m%d"),
-                                        minDate = format(Sys.Date(), format="%Y-%m-%d"),
-                                        view = "months", 
-                                        minView = "months", 
-                                        dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
-      tabPanel("$OI",airDatepickerInput("dates",
-                                        label = "Expiry month",
-                                        value = format(Sys.Date(), format="%Y-%m-%d"),
-                                        maxDate = format(Sys.Date()+365, format="%Y%m%d"),
-                                        minDate = format(Sys.Date(), format="%Y-%m-%d"),
-                                        view = "months", 
-                                        minView = "months", 
-                                        dateFormat = "MMM-yyyy"),plotOutput("plotoi")) #,
+      tabPanel("IV", plotOutput("plotiv")),
+      tabPanel("$OI",plotOutput("plotoi")) #,
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -287,9 +273,9 @@ server <- function(input, output) {
     
     iv <- readRDS(paste0("iv",".rds"))
     
+    last2Dates <- iv %>% count(Date) %>% slice_max(Date,n=2) %>% pull(Date)
     
-    
-    yt_OI_C <- iv %>% filter(Date==lubridate::today()-1) %>% 
+    yt_OI_C <- iv %>% filter(Date==last2Dates[2]) %>% 
       filter(Symbol=="SPY") %>%
       #  filter(option %like%  c("SPX22")) %>%
       
@@ -303,7 +289,7 @@ server <- function(input, output) {
       #slice_max(rnk,n = 100) %>%
       mutate(cum_sep_OI = cumsum(OI_pct))
     
-    yt_OI_P <- iv %>% filter(Date==lubridate::today()-1) %>% 
+    yt_OI_P <- iv %>% filter(Date==last2Dates[2]) %>% 
       filter(Symbol=="SPY") %>%
       #  filter(option %like%  c("SPX22")) %>%
       
@@ -319,7 +305,7 @@ server <- function(input, output) {
     
     
     
-    todays_OI_C <- iv %>% filter(Date==lubridate::today()) %>% 
+    todays_OI_C <- iv %>% filter(Date==last2Dates[1]) %>% 
       filter(Symbol=="SPY") %>%
       #filter(option %like%  c("SPX22")) %>%
       filter(expiry=={{expiry}}) %>%
@@ -332,7 +318,7 @@ server <- function(input, output) {
       #slice_max(rnk,n = 100) %>%
       mutate(cum_sep_OI = cumsum(OI_pct))
     
-    todays_OI_P <- iv %>% filter(Date==lubridate::today()) %>% 
+    todays_OI_P <- iv %>% filter(Date==last2Dates[1]) %>% 
       filter(Symbol=="SPY") %>%
       #filter(option %like%  c("SPX22")) %>%
       filter(expiry=={{expiry}}) %>%
