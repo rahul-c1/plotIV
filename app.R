@@ -21,8 +21,11 @@ library(lubridate)
 library(ggplot2)
 library(shinyWidgets)
 
-
-fridays <- seq.Date(Sys.Date(),ceiling_date(Sys.Date(),"month") - days(1),by="1 day") 
+# First day of next month
+first <- ceiling_date(Sys.Date(), unit = "month")
+# Last day of next month
+last <- ceiling_date(first, unit= "month") - days(1)
+fridays <- seq.Date(Sys.Date(),last,by="1 day") 
 choicedt <- format(fridays[weekdays(fridays)=="Friday"],format = "%Y-%m-%d")
 
 # Run the application
@@ -39,7 +42,7 @@ ui <- fluidPage(
     tabsetPanel(
       tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)),plotOutput("plotoi")) #,
-      tabPanel("$OI",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt),plotOutput("plotoi")) #,
+      tabPanel("$OI",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")) #,
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -424,7 +427,7 @@ server <- function(input, output) {
       
       
       
-      theme_bw(base_family="Lato") +
+      theme_bw() + #base_family="Lato"
       
       theme(
         
