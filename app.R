@@ -572,75 +572,75 @@ server <- function(input, output) {
       )
     
     
-    
-    output$plotseason <- renderPlot({
-      
-      stock_data_tbl <- input$symb %>% tq_get(from=input$seasonDates[1],to=input$seasonDates[2])
-      # 
-      #     df_returns_monthly <- stock_data_tbl %>% group_by(symbol) %>% tq_transmute(select=adjusted,mutate_fun=periodReturn,period="monthly",col_rename = "monthly.returns")
-      #     
-      #     df_returns_monthly %>% filter(symbol=="SPY") %>%
-      #       mutate(mnth= as.factor(month(date,label=T)),yr=as.factor(year(date))) %>%
-      #       ggplot(aes(yr,monthly.returns))+
-      #       geom_col()+ #aes(fill=mnth)
-      #       #facet_wrap(~mnth,scales="free",ncol=4)+
-      #       theme_tq()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),legend.position = "none")
-      st1 <- stock_data_tbl %>% #filter(sybmol==ticker) %>%
-        select(-1) %>%
-        select(date,adjusted)
-      
-      stocks <- xts(st1[,-1],order.by=as.Date(st1$date))
-      nowTS <- ts_ts(stocks)
-      seasonal <- decompose(na.locf(nowTS,fromLast=TRUE))$seasonal
-      
-      tsbox::ts_df(seasonal) %>%
-        filter(year(time)==max(year(time))) %>%
-        rename_all(tolower) %>%
-        mutate(yr=as.factor(year(time))) %>%
-        mutate(year = factor(year(time)),
-               date = update(time,year=1)
-        ) %>%
-        ggplot(aes(date,value,color=year))+
-        scale_x_date(date_breaks="1 month",date_labels = "%b")+theme_classic()+ geom_line(color="black",size=2)+
-        # Change line size
-        geom_hline(yintercept=1, linetype="dashed",
-                   color = "red", size=1)+
-        geom_hline(yintercept=0, linetype="dashed",
-                   color = "red", size=2)+
-        geom_hline(yintercept=-1, linetype="dashed",
-                   color = "red", size=1)+theme_tq() + geom_smooth(method = "gam")+ 
-        labs(y=NULL, title="Seasonality", # subtitle="Change",
-             caption=paste0("As of:\n\n" , lubridate::today()))
-        
-      
-    },height = 760, width = 1200)
+    # 
+    # output$plotseason <- renderPlot({
+    #   
+    #   stock_data_tbl <- input$symb %>% tq_get(from=input$seasonDates[1],to=input$seasonDates[2])
+    #   # 
+    #   #     df_returns_monthly <- stock_data_tbl %>% group_by(symbol) %>% tq_transmute(select=adjusted,mutate_fun=periodReturn,period="monthly",col_rename = "monthly.returns")
+    #   #     
+    #   #     df_returns_monthly %>% filter(symbol=="SPY") %>%
+    #   #       mutate(mnth= as.factor(month(date,label=T)),yr=as.factor(year(date))) %>%
+    #   #       ggplot(aes(yr,monthly.returns))+
+    #   #       geom_col()+ #aes(fill=mnth)
+    #   #       #facet_wrap(~mnth,scales="free",ncol=4)+
+    #   #       theme_tq()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),legend.position = "none")
+    #   st1 <- stock_data_tbl %>% #filter(sybmol==ticker) %>%
+    #     select(-1) %>%
+    #     select(date,adjusted)
+    #   
+    #   stocks <- xts(st1[,-1],order.by=as.Date(st1$date))
+    #   nowTS <- ts_ts(stocks)
+    #   seasonal <- decompose(na.locf(nowTS,fromLast=TRUE))$seasonal
+    #   
+    #   tsbox::ts_df(seasonal) %>%
+    #     filter(year(time)==max(year(time))) %>%
+    #     rename_all(tolower) %>%
+    #     mutate(yr=as.factor(year(time))) %>%
+    #     mutate(year = factor(year(time)),
+    #            date = update(time,year=1)
+    #     ) %>%
+    #     ggplot(aes(date,value,color=year))+
+    #     scale_x_date(date_breaks="1 month",date_labels = "%b")+theme_classic()+ geom_line(color="black",size=2)+
+    #     # Change line size
+    #     geom_hline(yintercept=1, linetype="dashed",
+    #                color = "red", size=1)+
+    #     geom_hline(yintercept=0, linetype="dashed",
+    #                color = "red", size=2)+
+    #     geom_hline(yintercept=-1, linetype="dashed",
+    #                color = "red", size=1)+theme_tq() + geom_smooth(method = "gam")+ 
+    #     labs(y=NULL, title="Seasonality", # subtitle="Change",
+    #          caption=paste0("As of:\n\n" , lubridate::today()))
+    #     
+    #   
+    # },height = 760, width = 1200)
     
     
   
-    output$plotseasonDW <- renderPlot({
-      
-      stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
-      df_returns_daily <- stock_data_tbl %>%
-        group_by(symbol) %>%
-        tq_transmute(select=adjusted,
-                     mutate_fun=periodReturn,
-                     period="daily",
-                     col_rename="daily.returns")
-      
-      df_returns_daily %>%
-        mutate(color=if_else(daily.returns>=0.04,"h","l")) %>%
-        mutate(dd=as.factor(wday(date,label=T)),
-               mnth=as.factor(month(date,label=T))) %>%
-        ggplot(aes(dd,daily.returns))+
-        geom_violin( width=0.75) +
-        geom_point(alpha = 0.1,position = position_dodge(width=0.75))+
-        facet_wrap(~mnth,scales="free")+
-        scale_y_continuous(labels = scales::percent_format(accuracy = 1))+
-        theme_tq()
-      
-      
-      
-    },height = 760, width = 1200)
+    # output$plotseasonDW <- renderPlot({
+    #   
+    #   stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
+    #   df_returns_daily <- stock_data_tbl %>%
+    #     group_by(symbol) %>%
+    #     tq_transmute(select=adjusted,
+    #                  mutate_fun=periodReturn,
+    #                  period="daily",
+    #                  col_rename="daily.returns")
+    #   
+    #   df_returns_daily %>%
+    #     mutate(color=if_else(daily.returns>=0.04,"h","l")) %>%
+    #     mutate(dd=as.factor(wday(date,label=T)),
+    #            mnth=as.factor(month(date,label=T))) %>%
+    #     ggplot(aes(dd,daily.returns))+
+    #     geom_violin( width=0.75) +
+    #     geom_point(alpha = 0.1,position = position_dodge(width=0.75))+
+    #     facet_wrap(~mnth,scales="free")+
+    #     scale_y_continuous(labels = scales::percent_format(accuracy = 1))+
+    #     theme_tq()
+    #   
+    #   
+    #   
+    # },height = 760, width = 1200)
     
     
     
