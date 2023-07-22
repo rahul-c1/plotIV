@@ -533,9 +533,9 @@ server <- function(input, output) {
     cowplot::plot_grid(
       p4,p3,
       #ncol = 1,nrow=4,labels = "",
-      labels = "", ncol = 1
+      labels = "", ncol = 2
     )
-  },height = 1200, width = 1080)
+  },height = 1200, width = 968)
 
   
 
