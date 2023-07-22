@@ -21,6 +21,10 @@ library(lubridate)
 library(ggplot2)
 library(shinyWidgets)
 
+
+fridays <- seq.Date(Sys.Date(),ceiling_date(Sys.Date(),"month") - days(1),by="1 day") 
+choicedt <- format(fridays[weekdays(fridays)=="Friday"],format = "%Y-%m-%d")
+
 # Run the application
 ui <- fluidPage(
   titlePanel("IV Skew"),
@@ -29,10 +33,13 @@ ui <- fluidPage(
   #dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
 #  airDatepickerInput("dates",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),
 
+
+
   mainPanel(
     tabsetPanel(
       tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
-      tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)),plotOutput("plotoi")) #,
+      #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)),plotOutput("plotoi")) #,
+      tabPanel("$OI",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt),plotOutput("plotoi")) #,
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -63,7 +70,7 @@ server <- function(input, output) {
     #stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
 
 #    stocks <- xts(st1[,-1],order.by=as.Date(st1$date))
-#    nowTS <- ts_ts(stocks)
+#    nowTS <- ts_ts(stocks
 #    seasonal <- decompose(na.locf(nowTS,fromLast=TRUE))$seasonal
     
 
@@ -141,8 +148,9 @@ server <- function(input, output) {
       data.frame(Month = format(d, "%Y-%B"), Day = res)
     }
     
-    fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
-    expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
+   # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
+  #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
+    expiry <- input$weeklyexpiry
     #print(weeklyExpiry)
     
     #weekdays(lubridate::today())
