@@ -27,12 +27,12 @@ ui <- fluidPage(
   helpText("Source: CBOE"),
   #textInput("symb", "Symbol", value="SPY"),
   #dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
-  airDatepickerInput("dates",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),
+#  airDatepickerInput("dates",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),
 
   mainPanel(
     tabsetPanel(
-      tabPanel("IV", plotOutput("plotiv")),
-      tabPanel("$OI",plotOutput("plotoi")) #,
+      tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
+      tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)),plotOutput("plotoi")) #,
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -58,7 +58,7 @@ server <- function(input, output) {
       res <- Reduce(c, res)
       data.frame(Month = format(d, "%Y-%B"), Day = res)
     }
-    expiry <- friday3(year(input$dates[1]),year(input$dates[1])) %>% filter(Day>input$dates[1]) %>% pull(2) %>% head(1)
+    expiry <- friday3(year(input$dates1[1]),year(input$dates1[1])) %>% filter(Day>input$dates1[1]) %>% pull(2) %>% head(1)
     
     #stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
 
@@ -66,130 +66,11 @@ server <- function(input, output) {
 #    nowTS <- ts_ts(stocks)
 #    seasonal <- decompose(na.locf(nowTS,fromLast=TRUE))$seasonal
     
-    
+
+    #dates[format(dates,"%w")==5]
   
     
-    # function to extract Expirations, Flag, and Strike from Option Name
-    getEFS = function(x)
-    {
-      expiry = str_sub(x, -15,-10)
-      expiry = as.character(as.Date(expiry,format="%y%m%d"))
-      flag   = str_sub(x,-9,-9)
-      strike = str_sub(x,-8,-1)
-      left   = str_sub(strike,-8,-4)
-      right  = str_sub(strike,-3,-1)
-      strike = paste0(left,".",right)
-      strike = as.numeric(strike)
-      as.data.frame(cbind(expiry,flag,strike))
-    }
-    
-    # get Options + Calculate IV & Greeks
-    CBOE_Options = function(symbol,EXERCISE){
-      # url to get options - will read in all using json
-      #url = "https://cdn.cboe.com/api/global/delayed_quotes/options/_SPX.json"
-      url = paste0("https://cdn.cboe.com/api/global/delayed_quotes/options/",symbol,".json")
-      # read in data from page
-      df = read_json(url,simplifyVector = TRUE)
-      # convert as data frame
-      opts = as.data.frame(df$data$options)
-      # get Expiration, Flag, & Strike
-      efs <- getEFS(opts$option)
-      # combine with options data
-      opts <- cbind(opts,efs)
-      # fix last_trade_time
-      opts$last_trade_time <- as.character(as.POSIXct(opts$last_trade_time,
-                                                      format="%Y-%m-%dT%H:%M:%S"))
-      opts$stkClose <- df$data$close
-      # add date pulled
-      opts$Date = as.character(Sys.Date())
-      # add Days to Expiration
-      opts$days2Exp = as.numeric(as.Date(opts$expiry) - as.Date(opts$Date))
-      # Option Mid Price
-      opts$Mid = round((opts$bid + opts$ask)/2,2)
-      
-      # calculate IV
-      if(EXERCISE == "european")
-      {
-        ivs = pblapply(as.list(1:nrow(opts)),function(ii){
-          tmp = try(EuropeanOptionImpliedVolatility(
-            type = ifelse(opts$flag[ii] == "C","call","put"),
-            value=as.numeric(opts$Mid)[ii],
-            underlying=as.numeric(df$data$close),
-            strike=as.numeric(opts$strike)[ii],
-            dividendYield=0,
-            riskFreeRate=0,
-            maturity=as.numeric(yearFraction(as.Date(opts$Date[ii]),
-                                             as.Date(opts$expiry[ii]),
-                                             1)),
-            volatility=as.numeric(df$data$iv30/100)),
-            silent=TRUE)
-          if(inherits(tmp,'try-error')){
-            iv = round(as.numeric(df$data$iv30/100),4)
-          }else{
-            iv = round(tmp[[1]],4)
-          }
-          iv
-        })
-        
-      }else{
-        ivs = pblapply(as.list(1:nrow(opts)),function(ii){
-          tmp = try(AmericanOptionImpliedVolatility(
-            type = ifelse(opts$flag[ii] == "C","call","put"),
-            value=as.numeric(opts$Mid)[ii],
-            underlying=as.numeric(df$data$close),
-            strike=as.numeric(opts$strike)[ii],
-            dividendYield=0,
-            riskFreeRate=0,
-            maturity=as.numeric(yearFraction(as.Date(opts$Date[ii]),
-                                             as.Date(opts$expiry[ii]),
-                                             1)),
-            volatility=as.numeric(df$data$iv30/100)),
-            silent=TRUE)
-          if(inherits(tmp,'try-error')){
-            iv = round(as.numeric(df$data$iv30/100),4)
-          }else{
-            iv = round(tmp[[1]],4)
-          }
-          iv
-        })
-      }
-      
-      # add Caluclated IVs to Options Date
-      opts$calc_IV = do.call(rbind,ivs)
-      
-      # calculate greeks
-      CALLS = subset(opts, opts$flag == "C")
-      PUTS = subset(opts, opts$flag == "P")
-      
-      # greeks for calls
-      cGREEKS = greeks2(bscall,list(s=as.numeric(CALLS$stkClose),
-                                    k=as.numeric(CALLS$strike),
-                                    v=as.numeric(CALLS$calc_IV),
-                                    r=rep(0,nrow(CALLS)),
-                                    tt=as.numeric(CALLS$days2Exp)/252,
-                                    d=rep(0,nrow(CALLS))))
-      # transpose greeks
-      cGREEKS = t(cGREEKS)
-      # combine with call options
-      CALLS = cbind(CALLS,cGREEKS)
-      
-      # greeks for calls
-      pGREEKS = greeks2(bsput,list(s=as.numeric(PUTS$stkClose),
-                                   k=as.numeric(PUTS$strike),
-                                   v=as.numeric(PUTS$calc_IV),
-                                   r=rep(0,nrow(PUTS)),
-                                   tt=as.numeric(PUTS$days2Exp)/252,
-                                   d=rep(0,nrow(PUTS))))
-      # transpose greeks
-      pGREEKS = t(pGREEKS)
-      # combine with call options
-      PUTS = cbind(PUTS,pGREEKS)
-      # combine calls/puts
-      opts = rbind(CALLS,PUTS)
-      # add ticker column
-      opts$Symbol = symbol
-      opts
-    }
+   
     DAYTODAY = format(Sys.Date(), format="%Y%m%d")
     DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
     DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
@@ -259,10 +140,12 @@ server <- function(input, output) {
       res <- Reduce(c, res)
       data.frame(Month = format(d, "%Y-%B"), Day = res)
     }
-    expiry <- friday3(year(input$dates[1]),year(input$dates[1])) %>% filter(Day>input$dates[1]) %>% pull(2) %>% head(1)
     
+    fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
+    expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
+    #print(weeklyExpiry)
     
-    weekdays(lubridate::today())
+    #weekdays(lubridate::today())
     DAYTODAY = format(Sys.Date(), format="%Y%m%d")
     DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
     DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
@@ -432,7 +315,7 @@ server <- function(input, output) {
       
     
     
-    labs(x=NULL, y=NULL, title="Call $OI",
+    labs(x=NULL, y=NULL, title=paste0("Call $OI for Expiry: ",{{expiry}}),
          
          #subtitle="Change",
          
@@ -443,7 +326,7 @@ server <- function(input, output) {
       
       
       
-      theme_bw(base_family="Lato") +
+      theme_bw() + #base_family="Lato"
       
       theme(
         
@@ -523,7 +406,7 @@ server <- function(input, output) {
       
     
     
-    labs(x=NULL, y=NULL, title="Puts $OI",
+    labs(x=NULL, y=NULL, title=paste0("Puts $OI for Expiry: ",{{expiry}}),
          
          # subtitle="Change",
          
