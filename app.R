@@ -9,6 +9,7 @@
 require("jsonlite");require("stringr");require("RQuantLib");require("derivmkts");require("pbapply")
 require("httr");require("rvest");require("purrr");require("data.table");library(quantmod);library(dplyr)
 library(lubridate)
+#library(gridExtra)
 
 
 #library(plotly)
@@ -57,8 +58,8 @@ ui <- fluidPage(
   mainPanel(
     tabsetPanel(
       tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
-      #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)),plotOutput("plotoi")) #,
-      tabPanel("$OI",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")) #,
+      #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
+      tabPanel("$OI",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #,
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -202,8 +203,10 @@ server <- function(input, output) {
 
     cmp_C <- fread("cmpC.csv")
     cmp_P <- fread("cmpP.csv")
-    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
-    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
+    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:30) %>% mutate(strike=as.factor(strike))
+    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:30) %>% mutate(strike=as.factor(strike))
+    
+    
     
     library(ggplot2)
     
@@ -253,9 +256,9 @@ server <- function(input, output) {
       
       
       
-      #geom_rect(data=dataC, aes(xmin=max(cmp_C$OI_Dollar.td)+1e5, xmax=max(cmp_C$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
+      #geom_rect(data=dataC, aes(xmin=max(dataC$OI_Dollar.td)+1e5, xmax=max(dataC$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
       
-      #geom_text(data=filter(dataC, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(cmp_C$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      geom_text(data=filter(dataC, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
       
       # geom_text(data=cmp_C,
       #
@@ -345,7 +348,8 @@ server <- function(input, output) {
       #   
       #   
       #   geom_rect(data=dataP, aes(xmin=max(dataP$OI_Dollar.td)+1e5, xmax=max(dataP$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
-      #   
+      geom_text(data=filter(dataP, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      
       #geom_text(data=filter(dataP, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(dataP$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
       
       # geom_text(data=cmp_C,
@@ -465,19 +469,16 @@ server <- function(input, output) {
     #   
     # },height = 760, width = 1200)
     
-    
-    
-    
-    
-    
-    
-    
-    
-    cowplot::plot_grid(
-      p4,p3,
+    # TASK
+   cowplot::plot_grid(
+      p3,p4,
       ncol = 1,labels = ""
-      
-    )
+    ) 
+    
+    
+
+   # })
+  
   },height = 1068, width = 1200)
 
   
