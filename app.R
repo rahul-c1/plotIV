@@ -184,8 +184,8 @@ server <- function(input, output) {
     
     red <- "#DE4433"
 
-    cmp_C <- fread("cmp_C.csv")
-    cmp_P <- fread("cmp_P.csv")
+    cmp_C <- fread("cmpC.csv")
+    cmp_P <- fread("cmpP.csv")
     dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
     dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
     

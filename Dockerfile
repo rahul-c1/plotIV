@@ -4,6 +4,6 @@ WORKDIR /home/ivplot
 COPY app.R app.R
 COPY deploy.R deploy.R
 COPY iv.rds iv.rds
-COPY cmp_C.csv cmp_C.csv
-COPY cmp_P.csv cmp_P.csv
+COPY cmpC.csv cmpC.csv
+COPY cmpP.csv cmpP.csv
 CMD Rscript deploy.R

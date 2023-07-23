@@ -241,8 +241,8 @@ update_data <- function(since_id) {
   cmp_P <- cmp_P %>% mutate(pct=diff_oi_d/OI_Dollar.td)  
   
   
-  fwrite(cmp_C,"cmp_C.csv")
-  fwrite(cmp_P,"cmp_P.csv")
+  fwrite(cmpC,"cmp_C.csv")
+  fwrite(cmpP,"cmp_P.csv")
   
 }
 
