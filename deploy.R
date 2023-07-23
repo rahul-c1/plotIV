@@ -16,4 +16,4 @@ setAccountInfo(name = error_on_missing_name("SHINY_ACC_NAME"),
                secret = error_on_missing_name("SECRET"))
 
 # Deploy the application.
-deployApp(appFiles = c("app.R", "iv.rds"))
+deployApp(appFiles = c("app.R", "iv.rds","cmpC.csv","cmpP.csv"))
