@@ -161,6 +161,23 @@ update_data <- function(since_id) {
   fridays <- seq.Date(Sys.Date(),last,by="1 day") 
   choicedt <- format(fridays[weekdays(fridays)=="Friday"],format = "%Y-%m-%d")
   
+  
+  friday3 <- function(start.year, end.year,interval = "3 month"){
+    d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), by = "1 month")[-1]
+    d <- as.Date(d)
+    res <- lapply(d, function(x){
+      s <- seq(x, by = "day", length.out = 28)
+      i <- format(s, "%u") == "5"
+      s[i][3]
+    })
+    
+    res <- Reduce(c, res)
+    data.frame(Month = format(d, "%Y-%B"), Day = res)
+  }
+  monthlyexpiry <- friday3(year(first),year(first)) %>% filter(Day>tail(choicedt,1)) %>% pull(2)# %>% head(1)
+  
+  choicedt <- c(choicedt,as.character(monthlyexpiry))
+  
   weeklies4month <- iv %>% filter(expiry %in% choicedt) 
   
   last2Dates <- weeklies4month %>% count(Date) %>% slice_max(Date,n=2) %>% pull(Date)
@@ -241,8 +258,8 @@ update_data <- function(since_id) {
   cmp_P <- cmp_P %>% mutate(pct=diff_oi_d/OI_Dollar.td)  
   
   
-  fwrite(cmpC,"cmp_C.csv")
-  fwrite(cmpP,"cmp_P.csv")
+  fwrite(cmp_C,"cmpC.csv")
+  fwrite(cmp_P,"cmpP.csv")
   
 }
 

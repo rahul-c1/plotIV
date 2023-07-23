@@ -28,6 +28,22 @@ last <- ceiling_date(first, unit= "month") - days(1)
 fridays <- seq.Date(Sys.Date(),last,by="1 day") 
 choicedt <- format(fridays[weekdays(fridays)=="Friday"],format = "%Y-%m-%d")
 
+friday3 <- function(start.year, end.year,interval = "3 month"){
+  d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), by = "1 month")[-1]
+  d <- as.Date(d)
+  res <- lapply(d, function(x){
+    s <- seq(x, by = "day", length.out = 28)
+    i <- format(s, "%u") == "5"
+    s[i][3]
+  })
+  
+  res <- Reduce(c, res)
+  data.frame(Month = format(d, "%Y-%B"), Day = res)
+}
+monthlyexpiry <- friday3(year(first),year(first)) %>% filter(Day>tail(choicedt,1)) %>% pull(2)# %>% head(1)
+
+choicedt <- c(choicedt,as.character(monthlyexpiry))
+
 # Run the application
 ui <- fluidPage(
   titlePanel("IV Skew"),
