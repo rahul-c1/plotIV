@@ -164,7 +164,9 @@ server <- function(input, output) {
     )
   },height = 1200, width = 1080)
   
-  
+  # output$d1 <- DT::renderDataTable({
+  #   datatable(head(mtcars))
+  # })
   output$plotoi <- renderPlot({
     
     friday3 <- function(start.year, end.year,interval = "3 month"){
