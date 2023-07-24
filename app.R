@@ -9,8 +9,8 @@
 require("jsonlite");require("stringr");require("RQuantLib");require("derivmkts");require("pbapply")
 require("httr");require("rvest");require("purrr");require("data.table");library(quantmod);library(dplyr)
 library(lubridate)
-#library(gridExtra)
-
+library(gridExtra)
+#library(DT)
 
 #library(plotly)
 # getSymbols("AAPL")
@@ -69,7 +69,7 @@ ui <- fluidPage(
     tabsetPanel(
       tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
-      tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #,
+      tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
       tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
       
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -270,7 +270,7 @@ server <- function(input, output) {
       
       #geom_rect(data=dataC, aes(xmin=max(dataC$OI_Dollar.td)+1e5, xmax=max(dataC$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
       
-      geom_text(data=filter(dataC, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      #geom_text(data=filter(dataC, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
       
       # geom_text(data=cmp_C,
       #
@@ -360,7 +360,7 @@ server <- function(input, output) {
       #   
       #   
       #   geom_rect(data=dataP, aes(xmin=max(dataP$OI_Dollar.td)+1e5, xmax=max(dataP$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
-      geom_text(data=filter(dataP, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      #(data=filter(dataP, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
       
       #geom_text(data=filter(dataP, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(dataP$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
       
@@ -481,9 +481,13 @@ server <- function(input, output) {
     #   
     # },height = 760, width = 1200)
     
-    # TASK
-   cowplot::plot_grid(
-      p3,p4,
+    # TASK 
+    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Date.td,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
+    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Date.td,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
+    
+    cowplot::plot_grid(
+     gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(tblC, rows = NULL),tableGrob(tblP, rows = NULL),ncol = 2,as.table = TRUE),
+                             clip = FALSE),
       ncol = 1,labels = ""
     ) 
     
@@ -825,7 +829,9 @@ server <- function(input, output) {
   #        x     = "Strikes",
   #        y     = "IV")
   
-  
+  output$d1 <- DT::renderDataTable({
+    datatable(head(mtcars))
+  })
 
 }# Run the application
 shinyApp(ui = ui, server = server)
