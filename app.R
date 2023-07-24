@@ -829,9 +829,7 @@ server <- function(input, output) {
   #        x     = "Strikes",
   #        y     = "IV")
   
-  output$d1 <- DT::renderDataTable({
-    datatable(head(mtcars))
-  })
+
 
 }# Run the application
 shinyApp(ui = ui, server = server)
