@@ -47,8 +47,18 @@ choicedt <- c(choicedt,as.character(monthlyexpiry))
 
 # Run the application
 ui <- fluidPage(
-  titlePanel("IV Skew"),
-  helpText("Source: CBOE"),
+  titlePanel("OptionsAnalytics",windowTitle="Options Data"),
+  helpText("Source: CBOE, updated @9am"),
+  # sidebarLayout(
+  #   sidebarPanel(
+  #     tags$head(
+  #       tags$style(HTML(".multicol {-webkit-column-count: 3; /* Chrome, Safari, Opera */-moz-column-count: 3; /* Firefox */column-count: 3;}")),
+  #       tags$style(type="text/css", "#loadmessage {position: fixed;top: 0px;left: 0px;width: 100%;padding: 5px 0px 5px 0px;text-align: center;font-weight: bold;font-size: 100%;color: #000000;background-color: #CCFF66;z-index: 105;}"),
+  #       tags$style(type="text/css",".shiny-output-error { visibility: hidden; }",".shiny-output-error:before { visibility: hidden; }")),
+  #     #conditionalPanel(condition="$('html').hasClass('shiny-busy')",tags$div("In Progress...",id="loadmessage")),
+  #     #selectInput("outputType", "Output Type", choices = output.choices),
+  #     #uiOutput("contrasts")
+  #   ),
   #textInput("symb", "Symbol", value="SPY"),
   #dateRangeInput("dates","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
 #  airDatepickerInput("dates",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),
@@ -59,14 +69,16 @@ ui <- fluidPage(
     tabsetPanel(
       tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
-      tabPanel("$OI",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #,
+      tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #,
+      tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
+      
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
            #    plotOutput("plotseason"))
     )
   ),
-  
+  #)
 )
 
 # Define server logic required to draw a histogram
@@ -203,8 +215,8 @@ server <- function(input, output) {
 
     cmp_C <- fread("cmpC.csv")
     cmp_P <- fread("cmpP.csv")
-    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:30) %>% mutate(strike=as.factor(strike))
-    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:30) %>% mutate(strike=as.factor(strike))
+    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
+    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
     
     
     
@@ -482,7 +494,265 @@ server <- function(input, output) {
   },height = 1068, width = 1200)
 
   
-
+  
+  output$plotoibystrike <- renderPlot({
+    
+    friday3 <- function(start.year, end.year,interval = "3 month"){
+      d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), by = "1 month")[-1]
+      d <- as.Date(d)
+      res <- lapply(d, function(x){
+        s <- seq(x, by = "day", length.out = 28)
+        i <- format(s, "%u") == "5"
+        s[i][3]
+      })
+      
+      res <- Reduce(c, res)
+      data.frame(Month = format(d, "%Y-%B"), Day = res)
+    }
+    
+    # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
+    #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
+    strike <- input$strike
+    #print(weeklyExpiry)
+    
+    #weekdays(lubridate::today())
+    DAYTODAY = format(Sys.Date(), format="%Y%m%d")
+    DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
+    DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
+    # td <- readRDS(paste0("spy",DAYTODAY,".rds"))
+    # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
+    # iv <- bind_rows(td,yt)
+    # saveRDS(iv,paste0("iv",".rds"))
+    
+    
+    percent_first <- function(x) {
+      
+      x <- sprintf("%d%%", round(x*100))
+      
+      x[2:length(x)] <- sub("%$", "", x[2:length(x)])
+      
+      x
+      
+    }
+    
+    
+    
+    blue <- "#0171CE"
+    
+    red <- "#DE4433"
+    
+    cmp_C <- fread("cmpC.csv")
+    cmp_P <- fread("cmpP.csv")
+    dataC <- cmp_C%>% filter(strike=={{strike}}) %>% arrange(-OI_Dollar.td) #%>% slice(1:20) %>% mutate(expiry=as.factor(strike))
+    dataP <- cmp_P%>% filter(strike=={{strike}}) %>% arrange(-OI_Dollar.td) #%>% slice(1:20) %>% mutate(strike=as.factor(strike))
+    
+    
+    
+    library(ggplot2)
+    
+    library(ggalt)
+    
+    #library(tidyverse)
+    
+    
+    
+    p5 <-  ggplot() +
+      
+      # geom_segment(data=c %>% arrange(-oid.td) %>% slice(1:10), aes(y=0, yend=st, x=oid.yt, xend=oid.td),
+      
+      #               color="#b2b2b2", size=0.15)
+      
+      geom_dumbbell(data=dataC, aes(y=expiry, x=OI_Dollar.yt, xend=OI_Dollar.td),
+                    
+                    size=1.5, color="#b2b2b2", size_x=3, size_xend = 3,
+                    
+                    colour_x = 'grey', colour_xend = blue)+
+      
+      
+      
+      # geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d>0),
+      
+      #           aes(x=oid.td, y=st, label="Up"),
+      
+      #           color=blue, size=3, vjust=-1.5, fontface="bold", family="Lato") +
+      
+      # geom_text(data=filter(dataC%>% arrange(-OI_Dollar.td) %>% slice(1:10), diff_oi_d<0),
+      # 
+    #         aes(x=oid.td, y=st, label="Dn"),
+    # 
+    #         color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+    # 
+    
+    
+    
+    
+    geom_text(data=dataC, aes(x=OI_Dollar.td, y=expiry, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
+              
+              color=red, size=2.75, vjust=2.5) + #, family="Lato"
+      
+      geom_text(data=dataC,aes(x=OI_Dollar.yt, y=expiry, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,2),suffix='M')),
+                
+                color=blue, size=2.75, vjust=2.5)+  #, family="Lato"
+      
+      
+      
+      #geom_rect(data=dataC, aes(xmin=max(dataC$OI_Dollar.td)+1e5, xmax=max(dataC$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
+      
+     # geom_text(data=filter(dataC, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      
+      # geom_text(data=cmp_C,
+      #
+      #           aes(x=max(cmp_C$OI_Dollar.td)+1.5e5, y=470, label="%Change"),
+      #
+      #           color="black", size=3.1, vjust=-2, fontface="bold", family="Lato") +
+      
+      # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
+      
+      # scale_y_discrete(expand=c(350,450)) +
+      
+    
+    
+    labs(x=NULL, y=NULL, title=paste0("Call $OI for Strike: ",{{strike}}),
+         
+         #subtitle="Change",
+         
+         # caption=paste0("As of:\n\n" , lubridate::today())
+    )+
+      
+      
+      
+      
+      
+      theme_bw() + #base_family="Lato"
+      
+      theme(
+        
+        #panel.grid.major=element_blank(),
+        
+        panel.grid.minor=element_blank(),
+        
+        panel.border=element_blank(),
+        
+        axis.ticks=element_blank(),
+        
+        axis.text.x=element_blank(),
+        
+        plot.title=element_text(size = 16, face="bold"),
+        
+        plot.title.position = "plot",
+        
+        plot.subtitle=element_text(face="italic", size=12, margin=margin(b=12)),
+        
+        plot.caption=element_text(size=8, margin=margin(t=12), color="#7a7d7e")
+        
+      )
+    
+    p6 <-  ggplot() +
+      
+      # geom_segment(data=c %>% arrange(-oid.td) %>% slice(1:10), aes(y=0, yend=st, x=oid.yt, xend=oid.td),
+      
+      #               color="#b2b2b2", size=0.15)
+      
+      geom_dumbbell(data=dataP, aes(y=expiry, x=OI_Dollar.yt, xend=OI_Dollar.td),
+                    
+                    size=1.5, color="#b2b2b2", size_x=3, size_xend = 3,
+                    
+                    colour_x = 'grey', colour_xend = blue)+
+      
+      
+      
+      #   # geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d>0),
+      #   
+      #   #           aes(x=oid.td, y=st, label="Up"),
+      #   
+      #   #           color=blue, size=3, vjust=-1.5, fontface="bold", family="Lato") +
+      #   
+      #   #   geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d<0),
+      #   
+    # #             aes(x=oid.td, y=st, label="Dn"),
+    # 
+    # #             color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+    # 
+    # 
+    # 
+    # 
+    # 
+    geom_text(data=dataP, aes(x=OI_Dollar.td, y=expiry, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
+              
+              color=red, size=2.75, vjust=2.5) + #, family="Lato"
+      
+      geom_text(data=dataP,aes(x=OI_Dollar.yt, y=expiry, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,2),suffix='M')),
+                
+                color=blue, size=2.75, vjust=2.5)+ #, family="Lato"
+      
+      #   
+      #   
+      #   geom_rect(data=dataP, aes(xmin=max(dataP$OI_Dollar.td)+1e5, xmax=max(dataP$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
+      #geom_text(data=filter(dataP, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      
+      #geom_text(data=filter(dataP, diff_oi_d>0), aes(label=scales::percent(pct), y=strike, x=max(dataP$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      
+      # geom_text(data=cmp_C,
+      #
+      #           aes(x=max(cmp_C$OI_Dollar.td)+1.5e5, y=470, label="%Change"),
+      #
+      #           color="black", size=3.1, vjust=-2, fontface="bold", family="Lato") +
+      
+      # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
+      
+    # scale_y_discrete(expand=c(350,450)) +
+    
+    
+    
+    labs(x=NULL, y=NULL, title=paste0("Puts $OI for Strike: ",{{strike}}),
+         
+         # subtitle="Change",
+         
+         caption=paste0("As of:\n\n" , lubridate::today()))+
+      
+      
+      
+      
+      
+      theme_bw() + #base_family="Lato"
+      
+      theme(
+        
+        #panel.grid.major=element_blank(),
+        
+        panel.grid.minor=element_blank(),
+        
+        panel.border=element_blank(),
+        
+        axis.ticks=element_blank(),
+        
+        axis.text.x=element_blank(),
+        
+        plot.title=element_text(size = 16, face="bold"),
+        
+        plot.title.position = "plot",
+        
+        plot.subtitle=element_text(face="italic", size=12, margin=margin(b=12)),
+        
+        plot.caption=element_text(size=8, margin=margin(t=12), color="#7a7d7e")
+        
+      )
+    
+    
+ 
+    cowplot::plot_grid(
+      p5,p6,
+      ncol = 2,labels = ""
+    ) 
+    
+    
+    
+    # })
+    
+  },height = 760, width = 1200)
+  
+  
+  
   
  
   
