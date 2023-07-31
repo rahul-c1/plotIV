@@ -484,8 +484,8 @@ server <- function(input, output) {
     # },height = 760, width = 1200)
     
     # TASK 
-    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Date.td,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
-    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Date.td,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
+    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
+    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
     
     cowplot::plot_grid(
      gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(tblC, rows = NULL),tableGrob(tblP, rows = NULL),ncol = 2,as.table = TRUE),
