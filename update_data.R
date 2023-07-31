@@ -190,7 +190,7 @@ update_data <- function(since_id) {
     filter(flag=="C") %>%
     select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
     mutate(strike=as.numeric(strike)) %>%
-    mutate(OI_Dollar=open_interest*last_trade_price*Delta) 
+    mutate(OI_Dollar=open_interest*last_trade_price) 
   
   yt_OI_P <- weeklies4month %>% filter(Date==last2Dates[2]) %>% 
     filter(Symbol=="SPY") %>%
@@ -200,7 +200,7 @@ update_data <- function(since_id) {
     filter(flag=="P") %>%
     select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
     mutate(strike=as.numeric(strike)) %>%
-    mutate(OI_Dollar=open_interest*last_trade_price*Delta*-1) 
+    mutate(OI_Dollar=open_interest*last_trade_price) 
   
   
   todays_OI_C <- weeklies4month %>% filter(Date==last2Dates[1]) %>% 
@@ -210,7 +210,7 @@ update_data <- function(since_id) {
     filter(flag=="C") %>%
     select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
     mutate(strike=as.numeric(strike)) %>%
-    mutate(OI_Dollar=open_interest*last_trade_price*Delta) 
+    mutate(OI_Dollar=open_interest*last_trade_price) 
   
   todays_OI_P <- weeklies4month %>% filter(Date==last2Dates[1]) %>% 
     filter(Symbol=="SPY") %>%
@@ -219,7 +219,7 @@ update_data <- function(since_id) {
     filter(flag=="P") %>%
     select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
     mutate(strike=as.numeric(strike)) %>%
-    mutate(OI_Dollar=open_interest*last_trade_price*Delta*-1) 
+    mutate(OI_Dollar=open_interest*last_trade_price) 
 
   
   cmp_C <- yt_OI_C %>% left_join(todays_OI_C,by=c("strike","expiry"),suffix = c(".yt",".td")) %>%
