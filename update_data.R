@@ -251,33 +251,84 @@ update_data <- function(since_id) {
   cmp_C <- cmp_C %>% mutate(pct=diff_oi_d/OI_Dollar.td)
   cmp_P <- cmp_P %>% mutate(pct=diff_oi_d/OI_Dollar.td)  
   
-  totalOI_C <- cmp_C %>%  count(expiry,totalOI,totalOIdiff)
+
   
-  ITM_C <- cmp_C %>% filter(strike<=stkClose) %>% mutate(diff_oi=open_interest.td-open_interest.yt,
-                                                         diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
+#--------------------------------------------------------
+  #Add the data for the following:
+  # 1. $Total OI (today and yesterday)
+  # 2. $Total OI ITM (today and yesterday)
+  # 3. $Total OI Difference (today and yesterday)
+  # 4. $Total OI Difference ITM (today and yesterday)
+  
+  
+#1. Total OI by expiry
+  totalOI_C <- cmp_C %>% count(Date.td,expiry,totalOI,totalOIdiff) %>% select(-n)
+  totalOI_P <- cmp_P %>% count(Date.td,expiry,totalOI,totalOIdiff) %>% select(-n)
+  
+  
+#2. Total ITM OI by expiry
+  
+  totalOI_ITM_C <- cmp_C %>% filter(strike<=stkClose) %>%
+    mutate(
+        diff_oi_itm=open_interest.td-open_interest.yt,
+        diff_oi_d_itm=OI_Dollar.td-OI_Dollar.yt) %>%
     group_by(expiry) %>% 
-    mutate(totalOI = sum(OI_Dollar.td)) %>% 
-    mutate(totalOIdiff=sum(diff_oi_d))%>%  count(expiry,totalOI,totalOIdiff)
-    #mutate(rnk=percent_rank(OI_Dollar))
+    mutate(totalOI_itm = sum(OI_Dollar.td)) %>% 
+    mutate(totalOIdiff_itm=sum(diff_oi_d))%>% 
+    count(expiry,totalOI_itm,totalOIdiff_itm) %>% 
+    select(-n)
+
   
-  
-  OI_C <- totalOI_C %>% left_join(ITM_C,by="expiry") %>% mutate(ITM_pct=totalOI.y/totalOI.x,OI_diff_pct = totalOIdiff.x/totalOI.x,OI_ITM_diff_pct = totalOIdiff.y/totalOI.y)
-  
-  
-  totalOI_P <- cmp_P %>%  count(expiry,totalOI,totalOIdiff)
-  
-  ITM_P <- cmp_P %>% filter(strike>=stkClose) %>% mutate(diff_oi=open_interest.td-open_interest.yt,
-                                                         diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
+  totalOI_ITM_P <- cmp_P %>% filter(strike>=stkClose)  %>%
+    mutate(
+        diff_oi_itm=open_interest.td-open_interest.yt,
+        diff_oi_d_itm=OI_Dollar.td-OI_Dollar.yt) %>%
     group_by(expiry) %>% 
-    mutate(totalOI = sum(OI_Dollar.td)) %>% 
-    mutate(totalOIdiff=sum(diff_oi_d))%>%  count(expiry,totalOI,totalOIdiff)
-  #mutate(rnk=percent_rank(OI_Dollar))
+    mutate(totalOI_itm = sum(OI_Dollar.td)) %>% 
+    mutate(totalOIdiff_itm=sum(diff_oi_d))%>% 
+    count(expiry,totalOI_itm,totalOIdiff_itm) %>% 
+    select(-n)
+ 
+  # Join ITM and Total Call
+  
+  OI_C_td <- totalOI_C %>% 
+      left_join(totalOI_ITM_C,by="expiry") %>% 
+      mutate(
+            OI_diff_pct = round(totalOIdiff/totalOI,3),
+            ITM_pct=round(totalOI_itm/totalOI,3),
+            OI_ITM_diff_pct =round(totalOIdiff_itm/totalOI_itm,3))
+      #        %>%
+      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>% 
+      # mutate_if(is.numeric,funs(round(./1e6,2))) %>%
+      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
+      # mutate_at(vars(!contains(c("pct","expiry"))),funs(paste0(.,"M")))
   
   
-  OI_P <- totalOI_P %>% left_join(ITM_P,by="expiry") %>% mutate(ITM_pct=totalOI.y/totalOI.x,OI_diff_pct = totalOIdiff.x/totalOI.x,OI_ITM_diff_pct = totalOIdiff.y/totalOI.y)
+  # Join ITM and Total Put
   
+  OI_P_td <- totalOI_P %>% 
+    left_join(totalOI_ITM_P,by="expiry") %>% 
+    mutate(
+      OI_diff_pct = round(totalOIdiff/totalOI,3),
+      ITM_pct=round(totalOI_itm/totalOI,3),
+      OI_ITM_diff_pct =round(totalOIdiff_itm/totalOI_itm,3)) 
+    #        %>%
+    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
+    # mutate_if(is.numeric,funs(round(./1e6,2))) %>%
+    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
+    # mutate_at(vars(!contains(c("pct","expiry"))),funs(paste0(.,"M")))
+  
+
   fwrite(cmp_C,"cmpC.csv")
   fwrite(cmp_P,"cmpP.csv")
+  
+  
+  OI_P <- fread("OI_P.csv")
+  OI_C <- fread("OI_C.csv")
+  
+  OI_P <- bind_rows(OI_P,OI_P_td)
+  
+  OI_C <- bind_rows(OI_C,OI_C_td)
   
   fwrite(OI_P,"OI_P.csv")
   fwrite(OI_C,"OI_C.csv")
