@@ -253,8 +253,9 @@ server <- function(input, output) {
       setDT() 
     
     
-    OI_P <- fread("OI_P.csv")
+
     OI_C <- fread("OI_C.csv")
+    OI_P <- fread("OI_P.csv")
     
     OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% 
     mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
