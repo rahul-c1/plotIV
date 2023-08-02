@@ -208,7 +208,7 @@ update_data <- function(since_id) {
     #filter(option %like%  c("SPX22")) %>%
    # filter(expiry=={{expiry}}) %>%
     filter(flag=="C") %>%
-    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
+    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry,stkClose) %>%
     mutate(strike=as.numeric(strike)) %>%
     mutate(OI_Dollar=open_interest*last_trade_price*100) %>% 
     mutate(Watch = strike + last_trade_price)
@@ -218,28 +218,30 @@ update_data <- function(since_id) {
     #filter(option %like%  c("SPX22")) %>%
    # filter(expiry=={{expiry}}) %>%
     filter(flag=="P") %>%
-    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry) %>%
+    select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry,stkClose) %>%
     mutate(strike=as.numeric(strike)) %>%
     mutate(OI_Dollar=open_interest*last_trade_price*100) %>% 
     mutate(Watch = strike + last_trade_price)
 
   
   cmp_C <- yt_OI_C %>% left_join(todays_OI_C,by=c("strike","expiry"),suffix = c(".yt",".td")) %>%
-    select(Watch,strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry) %>%
+    select(Watch,strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry,stkClose) %>%
     mutate(diff_oi=open_interest.td-open_interest.yt,
            diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
     group_by(expiry) %>% 
     mutate(totalOI = sum(OI_Dollar.td)) %>% 
+    mutate(totalOIdiff=sum(diff_oi_d)) %>% 
     #mutate(rnk=percent_rank(OI_Dollar)) %>%
     mutate(OI_pct=(OI_Dollar.td/totalOI)*100) %>% 
     arrange(-OI_Dollar.td) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>% setDT()
   
   cmp_P <- yt_OI_P %>% left_join(todays_OI_P,by=c("strike","expiry"),suffix = c(".yt",".td")) %>%
-    select(Watch,strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry) %>%
+    select(Watch,strike,open_interest.yt,open_interest.td,OI_Dollar.yt,OI_Dollar.td,Date.td,expiry,stkClose) %>%
     mutate(diff_oi=open_interest.td-open_interest.yt,
            diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
     group_by(expiry) %>% 
     mutate(totalOI = sum(OI_Dollar.td)) %>% 
+    mutate(totalOIdiff=sum(diff_oi_d)) %>% 
     #mutate(rnk=percent_rank(OI_Dollar)) %>%
     mutate(OI_pct=(OI_Dollar.td/totalOI)*100) %>% 
     arrange(-OI_Dollar.td) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>% setDT()
@@ -249,9 +251,38 @@ update_data <- function(since_id) {
   cmp_C <- cmp_C %>% mutate(pct=diff_oi_d/OI_Dollar.td)
   cmp_P <- cmp_P %>% mutate(pct=diff_oi_d/OI_Dollar.td)  
   
+  totalOI_C <- cmp_C %>%  count(expiry,totalOI,totalOIdiff)
+  
+  ITM_C <- cmp_C %>% filter(strike<=stkClose) %>% mutate(diff_oi=open_interest.td-open_interest.yt,
+                                                         diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
+    group_by(expiry) %>% 
+    mutate(totalOI = sum(OI_Dollar.td)) %>% 
+    mutate(totalOIdiff=sum(diff_oi_d))%>%  count(expiry,totalOI,totalOIdiff)
+    #mutate(rnk=percent_rank(OI_Dollar))
+  
+  
+  OI_C <- totalOI_C %>% left_join(ITM_C,by="expiry") %>% mutate(ITM_pct=totalOI.y/totalOI.x,OI_diff_pct = totalOIdiff.x/totalOI.x,OI_ITM_diff_pct = totalOIdiff.y/totalOI.y)
+  
+  
+  totalOI_P <- cmp_P %>%  count(expiry,totalOI,totalOIdiff)
+  
+  ITM_P <- cmp_P %>% filter(strike>=stkClose) %>% mutate(diff_oi=open_interest.td-open_interest.yt,
+                                                         diff_oi_d=OI_Dollar.td-OI_Dollar.yt) %>%
+    group_by(expiry) %>% 
+    mutate(totalOI = sum(OI_Dollar.td)) %>% 
+    mutate(totalOIdiff=sum(diff_oi_d))%>%  count(expiry,totalOI,totalOIdiff)
+  #mutate(rnk=percent_rank(OI_Dollar))
+  
+  
+  OI_P <- totalOI_P %>% left_join(ITM_P,by="expiry") %>% mutate(ITM_pct=totalOI.y/totalOI.x,OI_diff_pct = totalOIdiff.x/totalOI.x,OI_ITM_diff_pct = totalOIdiff.y/totalOI.y)
   
   fwrite(cmp_C,"cmpC.csv")
   fwrite(cmp_P,"cmpP.csv")
+  
+  fwrite(OI_P,"OI_P.csv")
+  fwrite(OI_C,"OI_C.csv")
+  
+
   
 }
 

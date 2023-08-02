@@ -228,6 +228,30 @@ server <- function(input, output) {
     
     #library(tidyverse)
     
+    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% slice(1:20)   #filter(cum_sep_OI<=90) %>% 
+    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>%  slice(1:20)  #filter(cum_sep_OI<=90) %>%
+    
+    pct_covered_C <- tblC %>% slice(n()) %>% pull(cum_sep_OI)
+    pct_covered_P <- tblP %>% slice(n()) %>% pull(cum_sep_OI)
+    
+    watchC <- tblC %>% select(-cum_sep_OI) %>% group_by(expiry) %>% 
+      mutate(totalOI = sum(OI_Dollar.td)) %>% 
+      mutate(diff_oi_d=round(diff_oi,0)) %>% 
+      #mutate(rnk=percent_rank(OI_Dollar)) %>%
+      mutate(OI_pct=round((OI_Dollar.td/totalOI)*100,2)) %>% 
+      arrange(Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>% 
+      select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
+      setDT() 
+    
+    watchP <- tblP %>% select(-cum_sep_OI) %>% group_by(expiry) %>% 
+      mutate(totalOI = sum(OI_Dollar.td)) %>% 
+      mutate(diff_oi_d=round(diff_oi,0)) %>% 
+      #mutate(rnk=percent_rank(OI_Dollar)) %>%
+      mutate(OI_pct=round((OI_Dollar.td/totalOI)*100,2)) %>% 
+      arrange(-Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>%
+      select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
+      setDT() 
+    
     
     
     p3 <-  ggplot() +
@@ -288,7 +312,7 @@ server <- function(input, output) {
     
     labs(x=NULL, y=NULL, title=paste0("Call $OI for Expiry: ",{{expiry}}),
          
-         #subtitle="Change",
+         subtitle=paste0("Top 20 Call Strikes Cover ",round({{pct_covered_C}},0),"%"," of $OI"),
          
         # caption=paste0("As of:\n\n" , lubridate::today())
         )+
@@ -380,7 +404,7 @@ server <- function(input, output) {
     
     labs(x=NULL, y=NULL, title=paste0("Puts $OI for Expiry: ",{{expiry}}),
          
-         # subtitle="Change",
+         subtitle=paste0("Top 20 Put Strikes Cover ",round({{pct_covered_P}},0),"%"," of $OI"),
          
          caption=paste0("As of:\n\n" , lubridate::today()))+
       
@@ -484,15 +508,14 @@ server <- function(input, output) {
     # },height = 760, width = 1200)
     
     # TASK 
-    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
-    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% filter(cum_sep_OI<=90) %>% slice(1:20)
-    
+
     cowplot::plot_grid(
-     gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(tblC, rows = NULL),tableGrob(tblP, rows = NULL),ncol = 2,as.table = TRUE),
+     gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
                              clip = FALSE),
       ncol = 1,labels = ""
     ) 
     
+
     
 
    # })
