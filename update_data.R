@@ -3,6 +3,7 @@ require("jsonlite");require("stringr");require("RQuantLib");require("derivmkts")
 require("httr");require("rvest");require("purrr");require("data.table");library(quantmod);library(dplyr)
 library(lubridate)
 library(readr)
+library(scales)
 #library(plotly)
 # getSymbols("AAPL")
 # 
@@ -297,12 +298,11 @@ update_data <- function(since_id) {
       mutate(
             OI_diff_pct = round(totalOIdiff/totalOI,3),
             ITM_pct=round(totalOI_itm/totalOI,3),
-            OI_ITM_diff_pct =round(totalOIdiff_itm/totalOI_itm,3))
-      #        %>%
-      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>% 
-      # mutate_if(is.numeric,funs(round(./1e6,2))) %>%
-      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
-      # mutate_at(vars(!contains(c("pct","expiry"))),funs(paste0(.,"M")))
+            OI_ITM_diff_pct =round(totalOIdiff_itm/totalOI_itm,3))     %>%
+      mutate_at(vars(contains("pct")),funs(scales::percent(round(.,2)))) %>%
+      mutate_if(is.numeric,funs(round(./1e6,2))) %>%
+      mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
+      mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
   
   
   # Join ITM and Total Put
@@ -312,16 +312,15 @@ update_data <- function(since_id) {
     mutate(
       OI_diff_pct = round(totalOIdiff/totalOI,3),
       ITM_pct=round(totalOI_itm/totalOI,3),
-      OI_ITM_diff_pct =round(totalOIdiff_itm/totalOI_itm,3)) 
-    #        %>%
-    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    # mutate_if(is.numeric,funs(round(./1e6,2))) %>%
-    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
-    # mutate_at(vars(!contains(c("pct","expiry"))),funs(paste0(.,"M")))
+      OI_ITM_diff_pct =round(totalOIdiff_itm/totalOI_itm,3)) %>%
+    mutate_at(vars(contains("pct")),funs(scales::percent(round(.,2)))) %>%
+    mutate_if(is.numeric,funs(round(./1e6,2))) %>%
+    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
+    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
   
 
-  #fwrite(cmp_C,"cmpC.csv")
-  #fwrite(cmp_P,"cmpP.csv")
+  fwrite(cmp_C,"cmpC.csv")
+  fwrite(cmp_P,"cmpP.csv")
   
   
   is.integer64 <- function(x){
@@ -329,25 +328,38 @@ update_data <- function(since_id) {
     result[1]
   }
   
-  OI_P <- read_csv("OI_P.csv") %>% mutate_if(is.integer64, as.double)
-  OI_C <- read_csv("OI_C.csv") %>% mutate_if(is.integer64, as.double)
+  OI_P <- read_csv("OI_P.csv") #%>% mutate_if(is.integer64, as.double)
+  OI_C <- read_csv("OI_C.csv") #%>% mutate_if(is.integer64, as.double)
   OI_C$Date.td<-as.character(OI_C$Date.td)
   OI_P$Date.td<-as.character(OI_P$Date.td)
   
   OI_C$expiry<-as.character(OI_C$expiry)
   OI_P$expiry<-as.character(OI_P$expiry)
   
-  OI_C$totalOI<-as.double(as.character(OI_C$totalOI))
-  OI_P$totalOI<-as.double(as.character(OI_P$totalOI))
-  OI_C$totalOI_itm<-as.double(as.character(OI_C$totalOI_itm))
-  OI_P$totalOI_itm<-as.double(as.character(OI_P$totalOI_itm))
+  OI_C <- OI_C %>% 
+  mutate_at(vars(contains("pct")),funs(scales::percent(round(.,2)))) %>%
+    mutate_if(is.numeric,funs(round(./1e6,2))) %>%
+    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
+    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
+  
+  
+  OI_P <- OI_P %>% 
+    mutate_at(vars(contains("pct")),funs(scales::percent(round(.,2)))) %>%
+    mutate_if(is.numeric,funs(round(./1e6,2))) %>%
+    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
+    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
+  
+  # OI_C$totalOI<-as.double(as.character(OI_C$totalOI))
+  # OI_P$totalOI<-as.double(as.character(OI_P$totalOI))
+  # OI_C$totalOI_itm<-as.double(as.character(OI_C$totalOI_itm))
+  # OI_P$totalOI_itm<-as.double(as.character(OI_P$totalOI_itm))
   
   OI_P <- bind_rows(OI_P,OI_P_td)
   
   OI_C <- bind_rows(OI_C,OI_C_td)
   
-  #fwrite(OI_P,"OI_P.csv")
-  #fwrite(OI_C,"OI_C.csv")
+  fwrite(OI_P,"OI_P.csv")
+  fwrite(OI_C,"OI_C.csv")
   
 
   
