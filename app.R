@@ -262,7 +262,7 @@ server <- function(input, output) {
     
     OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% 
     mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    mutate_if(is.integer64, as.integer) %>% 
+    #mutate_if(is.integer64, as.integer) %>% 
     #mutate_if(is.numeric,funs(./1000000)) %>%
     #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
     #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
@@ -270,7 +270,7 @@ server <- function(input, output) {
     
     OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% 
       mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-      mutate_if(is.integer64, as.integer) %>% 
+      #mutate_if(is.integer64, as.integer) %>% 
       #mutate_if(is.numeric,funs(./1000000)) %>%
       #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
       #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
