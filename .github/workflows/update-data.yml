@@ -21,7 +21,7 @@ jobs:
 
        - name: Install dependencies
          run: |
-            install.packages(c("bit64","scales","gridExtra","tidyquant","xts","quantmod","tsbox","xts","dbplyr","RQuantLib","shinyWidgets","ggplot2", "jsonlite", "dplyr", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod","ggalt","clipr"))
+            install.packages(c("gridExtra","tidyquant","xts","quantmod","tsbox","xts","dbplyr","RQuantLib","shinyWidgets","ggplot2", "jsonlite", "dplyr", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod","ggalt","clipr"))
          shell: Rscript {0}
 
        - name: Update data
