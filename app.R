@@ -10,6 +10,7 @@ require("jsonlite");require("stringr");require("RQuantLib");require("derivmkts")
 require("httr");require("rvest");require("purrr");require("data.table");library(quantmod);library(dplyr)
 library(lubridate)
 library(gridExtra)
+library(readr)
 #library(DT)
 
 #library(plotly)
@@ -257,23 +258,23 @@ server <- function(input, output) {
       result[1]
     }
 
-    OI_C <- fread("OI_C.csv")
-    OI_P <- fread("OI_P.csv")
+    OI_C <- read_csv("OI_C.csv")
+    OI_P <- read_csv("OI_P.csv")
     
     OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% 
     mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
     #mutate_if(is.integer64, as.integer) %>% 
-    #mutate_if(is.numeric,funs(./1000000)) %>%
-    #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+    mutate_if(is.numeric,funs(./1000000)) %>%
+    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
     arrange(desc(Date.td)) %>% select(-expiry)
     
     OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% 
       mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
       #mutate_if(is.integer64, as.integer) %>% 
-      #mutate_if(is.numeric,funs(./1000000)) %>%
-      #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-      #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+      mutate_if(is.numeric,funs(./1000000)) %>%
+      mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+      mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-c(expiry,Date.td))
       
     

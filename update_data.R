@@ -2,6 +2,7 @@
 require("jsonlite");require("stringr");require("RQuantLib");require("derivmkts");require("pbapply")
 require("httr");require("rvest");require("purrr");require("data.table");library(quantmod);library(dplyr)
 library(lubridate)
+library(readr)
 #library(plotly)
 # getSymbols("AAPL")
 # 
@@ -323,15 +324,8 @@ update_data <- function(since_id) {
   fwrite(cmp_P,"cmpP.csv")
   
   
-  OI_P <- fread("OI_P.csv")
-  OI_C <- fread("OI_C.csv")
-  OI_C$Date.td<-as.character(OI_C$Date.td)
-  OI_P$Date.td<-as.character(OI_P$Date.td)
-  
-  OI_C$expiry<-as.character(OI_C$expiry)
-  OI_P$expiry<-as.character(OI_P$expiry)
-  
-  
+  OI_P <- read_csv("OI_P.csv")
+  OI_C <- read_csv("OI_C.csv")
   
   OI_P <- bind_rows(OI_P,OI_P_td)
   
