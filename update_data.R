@@ -324,8 +324,13 @@ update_data <- function(since_id) {
   fwrite(cmp_P,"cmpP.csv")
   
   
-  OI_P <- read_csv("OI_P.csv")
-  OI_C <- read_csv("OI_C.csv")
+  is.integer64 <- function(x){
+    result = class(x) == "integer64"
+    result[1]
+  }
+  
+  OI_P <- read_csv("OI_P.csv") %>% mutate_if(is.integer64, as.double)
+  OI_C <- read_csv("OI_C.csv") %>% mutate_if(is.integer64, as.double)
   
   OI_P <- bind_rows(OI_P,OI_P_td)
   
