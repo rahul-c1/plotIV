@@ -259,16 +259,16 @@ server <- function(input, output) {
     
     OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% 
     mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    mutate_if(is.numeric,funs(./1e6)) %>%
+    #mutate_if(is.numeric,funs(./1e6)) %>%
     #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+    #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
     arrange(desc(Date.td)) %>% select(-expiry)
     
     OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% 
       mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-      mutate_if(is.numeric,funs(./1e6)) %>%
+      #mutate_if(is.numeric,funs(./1e6)) %>%
       #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-      mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+      #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-expiry)
       
     
