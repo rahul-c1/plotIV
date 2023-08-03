@@ -325,7 +325,8 @@ update_data <- function(since_id) {
   
   OI_P <- fread("OI_P.csv")
   OI_C <- fread("OI_C.csv")
-  
+  OI_C$Date.td<-as.character(OI_C$Date.td)
+  OI_P$Date.td<-as.character(OI_P$Date.td)
   OI_P <- bind_rows(OI_P,OI_P_td)
   
   OI_C <- bind_rows(OI_C,OI_C_td)
