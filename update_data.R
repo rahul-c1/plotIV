@@ -336,24 +336,8 @@ update_data <- function(since_id) {
   OI_C$expiry<-as.character(OI_C$expiry)
   OI_P$expiry<-as.character(OI_P$expiry)
   
-  OI_C <- OI_C %>% 
-  mutate_at(vars(contains("pct")),funs(scales::percent(round(.,2)))) %>%
-    mutate_if(is.numeric,funs(round(./1e6,2))) %>%
-    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
-    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
-  
-  
-  OI_P <- OI_P %>% 
-    mutate_at(vars(contains("pct")),funs(scales::percent(round(.,2)))) %>%
-    mutate_if(is.numeric,funs(round(./1e6,2))) %>%
-    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = "parens"))) %>%
-    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
-  
-  # OI_C$totalOI<-as.double(as.character(OI_C$totalOI))
-  # OI_P$totalOI<-as.double(as.character(OI_P$totalOI))
-  # OI_C$totalOI_itm<-as.double(as.character(OI_C$totalOI_itm))
-  # OI_P$totalOI_itm<-as.double(as.character(OI_P$totalOI_itm))
-  
+
+
   OI_P <- bind_rows(OI_P,OI_P_td)
   
   OI_C <- bind_rows(OI_C,OI_C_td)
