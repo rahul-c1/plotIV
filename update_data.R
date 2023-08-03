@@ -320,8 +320,8 @@ update_data <- function(since_id) {
     # mutate_at(vars(!contains(c("pct","expiry"))),funs(paste0(.,"M")))
   
 
-  fwrite(cmp_C,"cmpC.csv")
-  fwrite(cmp_P,"cmpP.csv")
+  #fwrite(cmp_C,"cmpC.csv")
+  #fwrite(cmp_P,"cmpP.csv")
   
   
   is.integer64 <- function(x){
@@ -342,8 +342,8 @@ update_data <- function(since_id) {
   
   OI_C <- bind_rows(OI_C,OI_C_td)
   
-  fwrite(OI_P,"OI_P.csv")
-  fwrite(OI_C,"OI_C.csv")
+  #fwrite(OI_P,"OI_P.csv")
+  #fwrite(OI_C,"OI_C.csv")
   
 
   
