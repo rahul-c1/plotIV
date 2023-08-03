@@ -337,10 +337,10 @@ update_data <- function(since_id) {
   OI_C$expiry<-as.character(OI_C$expiry)
   OI_P$expiry<-as.character(OI_P$expiry)
   
-  OI_C$totalOI<-as.double(OI_C$totalOI)
-  OI_P$totalOI<-as.double(OI_P$totalOI)
-  OI_C$totalOI_itm<-as.double(OI_C$totalOI_itm)
-  OI_P$totalOI_itm<-as.double(OI_P$totalOI_itm)
+  OI_C$totalOI<-as.double(as.character(OI_C$totalOI))
+  OI_P$totalOI<-as.double(as.character(OI_P$totalOI))
+  OI_C$totalOI_itm<-as.double(as.character(OI_C$totalOI_itm))
+  OI_P$totalOI_itm<-as.double(as.character(OI_P$totalOI_itm))
   
   OI_P <- bind_rows(OI_P,OI_P_td)
   
