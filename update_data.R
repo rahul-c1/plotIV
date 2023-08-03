@@ -331,6 +331,12 @@ update_data <- function(since_id) {
   
   OI_P <- read_csv("OI_P.csv") %>% mutate_if(is.integer64, as.double)
   OI_C <- read_csv("OI_C.csv") %>% mutate_if(is.integer64, as.double)
+  OI_C$Date.td<-as.character(OI_C$Date.td)
+  OI_P$Date.td<-as.character(OI_P$Date.td)
+  
+  OI_C$expiry<-as.character(OI_C$expiry)
+  OI_P$expiry<-as.character(OI_P$expiry)
+  
   
   OI_P <- bind_rows(OI_P,OI_P_td)
   
