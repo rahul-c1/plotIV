@@ -150,11 +150,11 @@ update_data <- function(since_id) {
   
   spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
   
-  saveRDS(spy,paste0("spy",format(Sys.Date(), format="%Y%m%d"),".rds"))
+  #saveRDS(spy,paste0("spy",format(Sys.Date(), format="%Y%m%d"),".rds"))
   
   iv <- bind_rows(iv,spy)
   
-  saveRDS(iv,paste0("iv",".rds"))
+#  saveRDS(iv,paste0("iv",".rds"))
   
   # First day of next month
   first <- ceiling_date(Sys.Date(), unit = "month")
@@ -319,8 +319,8 @@ update_data <- function(since_id) {
     mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M")))
   
 
-  fwrite(cmp_C,"cmpC.csv")
-  fwrite(cmp_P,"cmpP.csv")
+ # fwrite(cmp_C,"cmpC.csv")
+#  fwrite(cmp_P,"cmpP.csv")
   
   
   is.integer64 <- function(x){
@@ -358,8 +358,8 @@ update_data <- function(since_id) {
   
   OI_C <- bind_rows(OI_C,OI_C_td)
   
-  fwrite(OI_P,"OI_P.csv")
-  fwrite(OI_C,"OI_C.csv")
+#  fwrite(OI_P,"OI_P.csv")
+#  fwrite(OI_C,"OI_C.csv")
   
 
   
