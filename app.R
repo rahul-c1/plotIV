@@ -252,23 +252,28 @@ server <- function(input, output) {
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
       setDT() 
     
-    
+    is.integer64 <- function(x){
+      result = class(x) == "integer64"
+      result[1]
+    }
 
     OI_C <- fread("OI_C.csv")
     OI_P <- fread("OI_P.csv")
     
     OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% 
     mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    #mutate_if(is.numeric,funs(./1e6)) %>%
-    #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+    mutate_if(is.integer64, as.integer) %>% 
+    mutate_if(is.numeric,funs(./1e6)) %>%
+    mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+    mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
     arrange(desc(Date.td)) %>% select(-expiry)
     
     OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% 
       mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-      #mutate_if(is.numeric,funs(./1e6)) %>%
-      #mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-      #mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+      mutate_if(is.integer64, as.integer) %>% 
+      mutate_if(is.numeric,funs(./1e6)) %>%
+      mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+      mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-expiry)
       
     
