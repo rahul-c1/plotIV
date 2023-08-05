@@ -261,7 +261,11 @@ server <- function(input, output) {
     OI_C <- read_csv("OI_C.csv")
     OI_P <- read_csv("OI_P.csv")
     
-    OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% 
+    
+    last3Dates <- OI_C %>%  count(Date.td) %>% slice_max(Date.td,n=3) %>% pull(Date.td)
+    
+    
+    OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3]) %>% 
     # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
     #mutate_if(is.integer64, as.integer) %>% 
     # mutate_if(is.numeric,funs(./1000000)) %>%
@@ -270,7 +274,7 @@ server <- function(input, output) {
     arrange(desc(Date.td)) %>% 
     select(-expiry)
     
-    OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% 
+    OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3]) %>% 
       # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
       #mutate_if(is.integer64, as.integer) %>% 
       # mutate_if(is.numeric,funs(./1000000)) %>%
