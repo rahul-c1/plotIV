@@ -223,7 +223,7 @@ update_data <- function(since_id) {
     select(strike,flag,volume,open_interest,last_trade_price,Premium,Delta,Date,expiry,stkClose) %>%
     mutate(strike=as.numeric(strike)) %>%
     mutate(OI_Dollar=open_interest*last_trade_price*100) %>% 
-    mutate(Watch = strike + last_trade_price)
+    mutate(Watch = strike - last_trade_price)
 
   
   cmp_C <- yt_OI_C %>% left_join(todays_OI_C,by=c("strike","expiry"),suffix = c(".yt",".td")) %>%
