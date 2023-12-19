@@ -46,6 +46,8 @@ monthlyexpiry <- friday3(year(first),year(first)) %>% filter(Day>tail(choicedt,1
 
 choicedt <- c(choicedt,as.character(monthlyexpiry))
 
+iv_date <- friday3(year(first),year(first)) %>% filter(Day>Sys.Date()) %>% head(1) %>% pull(2)
+
 # Run the application
 ui <- fluidPage(
   titlePanel("OptionsAnalytics",windowTitle="Options Data"),
@@ -68,7 +70,7 @@ ui <- fluidPage(
 
   mainPanel(
     tabsetPanel(
-      tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(Sys.Date(), format="%Y-%m-%d"),maxDate = format(Sys.Date()+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
+      tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(iv_date, format="%Y-%m-%d"),maxDate = format(iv_date+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
       tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
       tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
