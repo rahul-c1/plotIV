@@ -597,9 +597,9 @@ server <- function(input, output) {
     # TASK 
     
 
-    
+    #grid.arrange(p10,p11,ncol=2)
     cowplot::plot_grid(
-     gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),grid.arrange(p10,p11,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
+     gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
                             arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
                             
                              clip = FALSE),
