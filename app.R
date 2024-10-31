@@ -228,7 +228,7 @@ server <- function(input, output) {
     library(ggplot2)
     library(bit64)
     library(ggalt)
-    
+    library(scales)
     #library(tidyverse)
     
     tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% slice(1:20)   #filter(cum_sep_OI<=90) %>% 
@@ -244,6 +244,11 @@ server <- function(input, output) {
       mutate(OI_pct=round((OI_Dollar.td/totalOI)*100,2)) %>% 
       arrange(Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>% 
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
+      mutate(strike=round(strike,0),
+             open_interest.td=scales::number(open_interest.td,big.mark=","),
+             OI_dollar.td=scales::dollar(OI_dollar.td,big.mark=","),
+             diff_oi=scales::number(diff_oi,big.mark=","),
+             cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
       setDT() 
     
     watchP <- tblP %>% select(-cum_sep_OI) %>% group_by(expiry) %>% 
@@ -253,6 +258,11 @@ server <- function(input, output) {
       mutate(OI_pct=round((OI_Dollar.td/totalOI)*100,2)) %>% 
       arrange(-Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>%
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
+         mutate(strike=round(strike,0),
+             open_interest.td=scales::number(open_interest.td,big.mark=","),
+             OI_dollar.td=scales::dollar(OI_dollar.td,big.mark=","),
+             diff_oi=scales::number(diff_oi,big.mark=","),
+             cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
       setDT() 
     
     is.integer64 <- function(x){
