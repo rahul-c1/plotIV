@@ -246,8 +246,9 @@ server <- function(input, output) {
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
       mutate(strike=round(strike,0),
              open_interest.td=scales::number(open_interest.td,big.mark=","),
-            OI_Dollar.td=scales::dollar(OI_Dollar.td,big.mark=","),
+            OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
              diff_oi=scales::number(diff_oi,big.mark=","),
+            diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
              cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
       setDT() 
     
@@ -260,8 +261,10 @@ server <- function(input, output) {
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
          mutate(strike=round(strike,0),
              open_interest.td=scales::number(open_interest.td,big.mark=","),
-            OI_Dollar.td=scales::dollar(OI_Dollar.td,big.mark=","),
+            OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
              diff_oi=scales::number(diff_oi,big.mark=","),
+            diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
+
              cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
       setDT() 
     
