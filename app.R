@@ -297,15 +297,21 @@ server <- function(input, output) {
       # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-c(expiry,Date.td))
 
-    plot_OI_C <- OI_C  %>% filter(Date.td>=last3Dates[5]) %>% 
+    plot_OI_C <- read_csv("OI_C.csv")
+    plot_OI_P <- read_csv("OI_P.csv")
+
+    
+    plot_OI_C <- plot_OI_C  %>% filter(Date.td>=last3Dates[5]) %>% 
     # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
     #mutate_if(is.integer64, as.integer) %>% 
     # mutate_if(is.numeric,funs(./1000000)) %>%
     # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
     # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
     arrange(desc(Date.td)) 
+
+
     
-    plot_OI_P <- OI_P  %>% filter(Date.td>=last3Dates[5]) %>% 
+    plot_OI_P <- plot_OI_P  %>% filter(Date.td>=last3Dates[5]) %>% 
       # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
       #mutate_if(is.integer64, as.integer) %>% 
       # mutate_if(is.numeric,funs(./1000000)) %>%
