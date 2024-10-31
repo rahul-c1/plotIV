@@ -297,11 +297,25 @@ server <- function(input, output) {
       # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-c(expiry,Date.td))
 
+    plot_OI_C <- OI_C  %>% filter(Date.td>=last3Dates[5]) %>% 
+    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
+    #mutate_if(is.integer64, as.integer) %>% 
+    # mutate_if(is.numeric,funs(./1000000)) %>%
+    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+    # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+    arrange(desc(Date.td)) 
     
+    plot_OI_P <- OI_P  %>% filter(Date.td>=last3Dates[5]) %>% 
+      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
+      #mutate_if(is.integer64, as.integer) %>% 
+      # mutate_if(is.numeric,funs(./1000000)) %>%
+      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+      # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+      arrange(desc(Date.td)) 
     col2<-"#b9e7cf"
     col1<-"#938484"
     
-    p10 <- OI_C %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
+    p10 <- plot_OI_C %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
                            totalOI=as.numeric(gsub("[$M]","",totalOI)),
                            OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
     ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
@@ -310,7 +324,7 @@ server <- function(input, output) {
     labs(title="C",x="Date",y="Expiry")+theme_bw()+theme_minimal()+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
 
     
-    p11 <- OI_P %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
+    p11 <- plot_OI_P %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
                            totalOI=as.numeric(gsub("[$M]","",totalOI)),
                            OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
     ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
