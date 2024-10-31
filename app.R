@@ -296,7 +296,29 @@ server <- function(input, output) {
       # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
       # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-c(expiry,Date.td))
-      
+
+    
+    col2<-"#b9e7cf"
+    col1<-"#938484"
+    
+    p10 <- OI_C %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
+                           totalOI=as.numeric(gsub("[$M]","",totalOI)),
+                           OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
+    ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
+    scale_fill_gradient(low=col2,high=col1)+
+    guides(fill=guide_legend(title="%chg"))
+    labs(title="C",x="Date",y="Expiry")+theme_bw()+theme_minimal()+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
+
+    
+    p11 <- OI_P %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
+                           totalOI=as.numeric(gsub("[$M]","",totalOI)),
+                           OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
+    ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
+    scale_fill_gradient(low=col2,high=col1)+
+    guides(fill=guide_legend(title="%chg"))
+    labs(title="C",x="Date",y="Expiry")+theme_bw()+theme_minimal()+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
+
+    
     
     
     p3 <-  ggplot() +
@@ -553,10 +575,13 @@ server <- function(input, output) {
     # },height = 760, width = 1200)
     
     # TASK 
+    
 
+    
     cowplot::plot_grid(
      gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
                             arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
+                            grid.arrange(p10,p11,ncol=2)
                              clip = FALSE),
       ncol = 1,labels = ""
     ) 
