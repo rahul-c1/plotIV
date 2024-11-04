@@ -76,7 +76,7 @@ ui <- fluidPage(
       tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
       tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
       tabPanel("$OI Key Levels",pickerInput("weeklyexpiry1","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")) , #, dataTableOutput("d1")
-      tabPanel("$OI Key Levels",pickerInput("weeklyexpiry2","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),reactableOutput("oirct")) #, , dataTableOutput("d1")
+      tabPanel("$OI Table",pickerInput("weeklyexpiry2","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),reactableOutput("oirct")) #, , dataTableOutput("d1")
 
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
