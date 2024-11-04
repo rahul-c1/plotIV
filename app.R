@@ -74,7 +74,7 @@ ui <- fluidPage(
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
       tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
       tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
-      #tabPanel("$OI Key Levels",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")), #, , dataTableOutput("d1")
+      tabPanel("$OI Key Levels",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")) #, , dataTableOutput("d1")
       
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
@@ -636,89 +636,33 @@ server <- function(input, output) {
 #sub_missing() %>%
 #opt_interactive(use_compact_mode=TRUE)
 
-#       watchC$PC<-"C"
-#       watchP$PC<-"P"
-#       compbinedPC<-bind_rows(watchC,watchP)
-#       combinedPC<- as.factor(combinedPC$PC)
+       watchC$PC<-"C"
+       watchP$PC<-"P"
+       compbinedPC<-bind_rows(watchC,watchP)
+       combinedPC<- as.factor(combinedPC$PC)
 
-#       library(RColorBrewer)
-#       pc_table<-function(x){
-#         gt(x) %>%
-##         data_color(columns="diff_oi_d",,
-#                    colors=col_numeric(palette="Blues",c(-1e4,1e7)))%>% #RdYlGn
-#         fmt_currency(columns=c(diff_oi_d),decimals=0) %>%
-#         col_label_with(columns=everything(),fn=toupper) %>%
-#         tab_options(column_labels.hidden-TRUE) %>% as_raw_html()
-#         }
-#       combinedPC %>% arrange(OI_Dollar.td) %>%
-#       group_by(relevel(factor(PC),"PC") %>%
-#                arrange(diff_oi_d) %>%
-#                slice_head(n,20) %>%
-#                select(strike,diff_oi_id)%>%
-#                arrange(strike) %>%
-#                group_map( ~pc_table(.x)) %>%
-#                data.frame(.) %>%
-#                setNames(.,c("C","P")) %>%
-#                gt() %>%
-#                fmt_markdown(columns=TRUE)
+       library(RColorBrewer)
+       pc_table<-function(x){
+         gt(x) %>%
+         data_color(columns="diff_oi_d",,
+                    colors=col_numeric(palette="Blues",c(-1e4,1e7)))%>% #RdYlGn
+         fmt_currency(columns=c(diff_oi_d),decimals=0) %>%
+         col_label_with(columns=everything(),fn=toupper) %>%
+         tab_options(column_labels.hidden-TRUE) %>% as_raw_html()
+         }
+       combinedPC %>% arrange(OI_Dollar.td) %>%
+       group_by(relevel(factor(PC),"PC") %>%
+                arrange(diff_oi_d) %>%
+                slice_head(n,20) %>%
+                select(strike,diff_oi_id)%>%
+                arrange(strike) %>%
+                group_map( ~pc_table(.x)) %>%
+                data.frame(.) %>%
+                setNames(.,c("C","P")) %>%
+                gt() %>%
+                fmt_markdown(columns=TRUE)
                 
-    is.integer64 <- function(x){
-      result = class(x) == "integer64"
-      result[1]
-    }
-
-    OI_C <- read_csv("OI_C.csv")
-    OI_P <- read_csv("OI_P.csv")
-    
-    
-    last3Dates <- OI_C %>%  count(Date.td) %>% slice_max(Date.td,n=3) %>% pull(Date.td)
-    
-    
-    OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3]) %>% 
-    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    #mutate_if(is.integer64, as.integer) %>% 
-    # mutate_if(is.numeric,funs(./1000000)) %>%
-    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
-    arrange(desc(Date.td)) %>% 
-    select(-expiry)
-    
-    OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3]) %>% 
-      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-      #mutate_if(is.integer64, as.integer) %>% 
-      # mutate_if(is.numeric,funs(./1000000)) %>%
-      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-      # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
-      arrange(desc(Date.td)) %>% select(-c(expiry,Date.td))
-
-    plot_OI_C <- read_csv("OI_C.csv")
-    plot_OI_P <- read_csv("OI_P.csv")
-
-    
-    plot_OI_C <- plot_OI_C  %>% filter(Date.td>=last3Dates[5]) %>% 
-    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    #mutate_if(is.integer64, as.integer) %>% 
-    # mutate_if(is.numeric,funs(./1000000)) %>%
-    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
-    arrange(desc(Date.td)) 
-
-
-    
-    plot_OI_P <- plot_OI_P  %>% filter(Date.td>=last3Dates[5]) %>% 
-      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-      #mutate_if(is.integer64, as.integer) %>% 
-      # mutate_if(is.numeric,funs(./1000000)) %>%
-      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-      # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
-      arrange(desc(Date.td)) 
-
-      
-    
-        
-      )
- 
-    # 
+  # 
     # output$plotseason <- renderPlot({
     #   
     #   stock_data_tbl <- input$symb %>% tq_get(from=input$seasonDates[1],to=input$seasonDates[2])
@@ -792,20 +736,20 @@ server <- function(input, output) {
     
 
     #grid.arrange(p10,p11,ncol=2)
-    cowplot::plot_grid(
-     gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
-                            arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
-                            
-                             clip = FALSE),
-      ncol = 1,labels = ""
-    ) 
+    #cowplot::plot_grid(
+    # gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
+    #                        arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
+    #                        
+    #                         clip = FALSE),
+    #  ncol = 1,labels = ""
+    #) 
     
 
     
 
-   # })
+    })
   
-  },height = 1400, width = 1200)
+ # },height = 1400, width = 1200)
 
   
   
