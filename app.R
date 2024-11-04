@@ -81,7 +81,7 @@ ui <- fluidPage(
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
            #    plotOutput("plotseason"))
     )
-  ),
+  ) #,
   #)
 )
 
