@@ -13,6 +13,7 @@ library(gridExtra)
 library(readr)
 #library(DT)
 library(gt)
+library(reactable)
 #library(plotly)
 # getSymbols("AAPL")
 # 
@@ -75,7 +76,8 @@ ui <- fluidPage(
       tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
       tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
       tabPanel("$OI Key Levels",pickerInput("weeklyexpiry1","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")) #, , dataTableOutput("d1")
-      
+      tabPanel("$OI Key Levels",pickerInput("weeklyexpiry2","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),reactableOutput("oirct")) #, , dataTableOutput("d1")
+
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
       #tabPanel("Seasonality Month-Day",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
@@ -172,6 +174,30 @@ server <- function(input, output) {
   # output$d1 <- DT::renderDataTable({
   #   datatable(head(mtcars))
   # })
+
+
+  output$oirct<-renderReacctable({
+  OI_C<-fread("OI_C.csv")
+  OI_P<-fread("OI_P.csv")
+
+  last3Dates<-OI_C %>% count(Date.td) %>% slice_max(Date.td,n=3) %>% pull(Date.td)
+    
+  expiry<-input$weeklyexpiry2
+
+  OI_C<- OI_C %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3])%>%
+    arrange(desc(Date.td)) %>%
+    select(-expiry)
+
+    
+  OI_P<- OI_P %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3])%>%
+    arrange(desc(Date.td)) %>%
+    select(-expiry)
+OI_C$PC<-"C"
+    OI_PC<-"P"
+    combinedOI<-bind_rows(OI_C,OI_P)
+    reacatable(combinedOI)
+    
+    })
   output$plotoi <- renderPlot({
     
     friday3 <- function(start.year, end.year,interval = "3 month"){
