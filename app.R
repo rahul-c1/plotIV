@@ -303,7 +303,7 @@ server <- function(input, output) {
     plot_OI_P <- read_csv("OI_P.csv")
     
     
-    plot_OI_C <- plot_OI_C  %>% filter(Date.td>=last3Dates[5]) %>% 
+    plot_OI_C <- plot_OI_C  %>% filter(Date.td>=today()-days(10)) %>% 
       # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
       #mutate_if(is.integer64, as.integer) %>% 
       # mutate_if(is.numeric,funs(./1000000)) %>%
@@ -313,7 +313,7 @@ server <- function(input, output) {
     
     
     
-    plot_OI_P <- plot_OI_P  %>% filter(Date.td>=last3Dates[5]) %>% 
+    plot_OI_P <- plot_OI_P  %>% filter(Date.td>=today()-days(10)) %>% 
       # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
       #mutate_if(is.integer64, as.integer) %>% 
       # mutate_if(is.numeric,funs(./1000000)) %>%
@@ -601,7 +601,7 @@ server <- function(input, output) {
     
     #grid.arrange(p10,p11,ncol=2)
     cowplot::plot_grid(
-      gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
+      gridExtra::arrangeGrob(grid.arrange(p3,p4,p10,p11,ncol=2,padding=0.1,heights=unit(c(5,2),c("in","in"))),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
                              arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
                              
                              clip = FALSE),
