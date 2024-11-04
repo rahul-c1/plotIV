@@ -644,7 +644,7 @@ server <- function(input, output) {
        library(RColorBrewer)
        pc_table<-function(x){
          gt(x) %>%
-         data_color(columns="diff_oi_d",,
+         data_color(columns="diff_oi_d",
                     colors=col_numeric(palette="Blues",c(-1e4,1e7)))%>% #RdYlGn
          fmt_currency(columns=c(diff_oi_d),decimals=0) %>%
          col_label_with(columns=everything(),fn=toupper) %>%
