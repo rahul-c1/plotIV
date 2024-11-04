@@ -74,7 +74,7 @@ ui <- fluidPage(
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
       tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
       tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
-      tabPanel("$OI Key Levels",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")) #, , dataTableOutput("d1")
+      tabPanel("$OI Key Levels",pickerInput("weeklyexpiry1","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")) #, , dataTableOutput("d1")
       
       #tabPanel("Seasonality Monthly",textInput("symb", "Symbol", value="SPY"),dateRangeInput("seasonDates","Date range",start = '1990-01-01',end = ceiling_date(Sys.Date(),"month") - days(1)), #as.character(Sys.Date())
           #     plotOutput("plotseason")),
@@ -968,7 +968,7 @@ server <- function(input, output) {
 
     # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
     #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
-    expiry <- input$weeklyexpiry
+    expiry <- input$weeklyexpiry1
     #print(weeklyExpiry)
 
     #weekdays(lubridate::today())
@@ -1052,14 +1052,14 @@ server <- function(input, output) {
     #  watchC<-watchC %>% gt() %>% fmt_currency(columns = c(OI_Dollar.td,diff_oi_d),decimals=0) %>%
     #     #cols_hide(columns=-c(mfr,OI_Dollar,year,mpg,msrp)
     #     cols_label_with(columns=everything(),fn=toupper) %>%
-    #     data_color(columns - diff_oi_d,method="numeric",palette= "virdis) %>%
+    #     data_color(columns - diff_oi_d,method="numeric",palette= "virdis") %>%
     #sub_missing() %>%
     #opt_interactive(use_compact_mode=TRUE)
 
     #   watchP<-watchP %>% gt() %>% fmt_currency(columns = c(OI_Dollar.td,diff_oi_d),decimals=0) %>%
     #      #cols_hide(columns=-c(mfr,OI_Dollar,year,mpg,msrp)
     #      cols_label_with(columns=everything(),fn=toupper) %>%
-    #      data_color(columns - diff_oi_d,method="numeric",palette= "virdis) %>%
+    #      data_color(columns - diff_oi_d,method="numeric",palette= "virdis") %>%
     #sub_missing() %>%
     #opt_interactive(use_compact_mode=TRUE)
 
@@ -1071,7 +1071,7 @@ server <- function(input, output) {
     library(RColorBrewer)
     pc_table<-function(x){
       gt(x) %>%
-        data_color(columns="diff_oi_d",colors=col_numeric(palette="RdYlGn",c(-1e4,1e7)))%>% #RdYlGn
+        data_color(columns="diff_oi_d",colors=col_numeric(palette="Blues",c(-1e4,1e7)))%>% #RdYlGn
         fmt_currency(columns=c(diff_oi_d),decimals=0) %>%
         cols_label_with(columns=everything(),fn=toupper) %>%
         tab_options(column_labels.hidden=TRUE) %>% as_raw_html()
