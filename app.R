@@ -651,7 +651,7 @@ server <- function(input, output) {
          tab_options(column_labels.hidden-TRUE) %>% as_raw_html()
          }
        combinedPC %>% arrange(OI_Dollar.td) %>%
-       group_by(relevel(factor(PC),"PC") %>%
+       group_by(relevel(factor(PC),"PC")) %>%
                 arrange(diff_oi_d) %>%
                 slice_head(n,20) %>%
                 select(strike,diff_oi_id)%>%
