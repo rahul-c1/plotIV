@@ -12,7 +12,7 @@ library(lubridate)
 library(gridExtra)
 library(readr)
 #library(DT)
-#library(gt)
+library(gt)
 #library(plotly)
 # getSymbols("AAPL")
 # 
@@ -86,6 +86,7 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
+# Define server logic required to draw a histogram
 server <- function(input, output) {
   
   output$plotiv <- renderPlot({
@@ -104,16 +105,16 @@ server <- function(input, output) {
     expiry <- friday3(year(input$dates1[1]),year(input$dates1[1])) %>% filter(Day>input$dates1[1]) %>% pull(2) %>% head(1)
     
     #stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
-
-#    stocks <- xts(st1[,-1],order.by=as.Date(st1$date))
-#    nowTS <- ts_ts(stocks
-#    seasonal <- decompose(na.locf(nowTS,fromLast=TRUE))$seasonal
     
-
+    #    stocks <- xts(st1[,-1],order.by=as.Date(st1$date))
+    #    nowTS <- ts_ts(stocks
+    #    seasonal <- decompose(na.locf(nowTS,fromLast=TRUE))$seasonal
+    
+    
     #dates[format(dates,"%w")==5]
-  
     
-   
+    
+    
     DAYTODAY = format(Sys.Date(), format="%Y%m%d")
     DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
     DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
@@ -164,7 +165,7 @@ server <- function(input, output) {
     cowplot::plot_grid(
       p1, p2, 
       #ncol = 1,nrow=4,labels = "",
-           labels = "", ncol = 1
+      labels = "", ncol = 1
     )
   },height = 1200, width = 1080)
   
@@ -186,8 +187,8 @@ server <- function(input, output) {
       data.frame(Month = format(d, "%Y-%B"), Day = res)
     }
     
-   # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
-  #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
+    # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
+    #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
     expiry <- input$weeklyexpiry
     #print(weeklyExpiry)
     
@@ -218,7 +219,7 @@ server <- function(input, output) {
     blue <- "#0171CE"
     
     red <- "#DE4433"
-
+    
     cmp_C <- fread("cmpC.csv")
     cmp_P <- fread("cmpP.csv")
     dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
@@ -247,9 +248,9 @@ server <- function(input, output) {
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
       mutate(strike=round(strike,0),
              open_interest.td=scales::number(open_interest.td,big.mark=","),
-            OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
+             OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
              diff_oi=scales::number(diff_oi,big.mark=","),
-            diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
+             diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
              cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
       setDT() 
     
@@ -260,12 +261,12 @@ server <- function(input, output) {
       mutate(OI_pct=round((OI_Dollar.td/totalOI),2)) %>% 
       arrange(-Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>%
       select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
-         mutate(strike=round(strike,0),
+      mutate(strike=round(strike,0),
              open_interest.td=scales::number(open_interest.td,big.mark=","),
-            OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
+             OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
              diff_oi=scales::number(diff_oi,big.mark=","),
-            diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
-
+             diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
+             
              cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
       setDT() 
     
@@ -273,7 +274,7 @@ server <- function(input, output) {
       result = class(x) == "integer64"
       result[1]
     }
-
+    
     OI_C <- read_csv("OI_C.csv")
     OI_P <- read_csv("OI_P.csv")
     
@@ -282,13 +283,13 @@ server <- function(input, output) {
     
     
     OI_C <- OI_C %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3]) %>% 
-    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    #mutate_if(is.integer64, as.integer) %>% 
-    # mutate_if(is.numeric,funs(./1000000)) %>%
-    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
-    arrange(desc(Date.td)) %>% 
-    select(-expiry)
+      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
+      #mutate_if(is.integer64, as.integer) %>% 
+      # mutate_if(is.numeric,funs(./1000000)) %>%
+      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+      # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+      arrange(desc(Date.td)) %>% 
+      select(-expiry)
     
     OI_P <- OI_P %>% filter(expiry=={{expiry}}) %>% filter(Date.td>=last3Dates[3]) %>% 
       # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
@@ -297,20 +298,20 @@ server <- function(input, output) {
       # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
       # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
       arrange(desc(Date.td)) %>% select(-c(expiry,Date.td))
-
+    
     plot_OI_C <- read_csv("OI_C.csv")
     plot_OI_P <- read_csv("OI_P.csv")
-
+    
     
     plot_OI_C <- plot_OI_C  %>% filter(Date.td>=last3Dates[5]) %>% 
-    # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
-    #mutate_if(is.integer64, as.integer) %>% 
-    # mutate_if(is.numeric,funs(./1000000)) %>%
-    # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
-    # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
-    arrange(desc(Date.td)) 
-
-
+      # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
+      #mutate_if(is.integer64, as.integer) %>% 
+      # mutate_if(is.numeric,funs(./1000000)) %>%
+      # mutate_if(is.numeric,funs(scales::dollar(.,style_negative = 'parens'))) %>%
+      # mutate_at(vars(!contains(c("pct","expiry","Date.td"))),funs(paste0(.,"M"))) %>% 
+      arrange(desc(Date.td)) 
+    
+    
     
     plot_OI_P <- plot_OI_P  %>% filter(Date.td>=last3Dates[5]) %>% 
       # mutate_at(vars(contains("pct")),funs(scales::percent)) %>%
@@ -323,22 +324,22 @@ server <- function(input, output) {
     col1<-"#938484"
     
     p10 <- plot_OI_C %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
-                           totalOI=as.numeric(gsub("[$M]","",totalOI)),
-                           OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
-    ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
-    scale_fill_gradient(low=col2,high=col1)+
-    guides(fill=guide_legend(title="%chg"))
+                                totalOI=as.numeric(gsub("[$M]","",totalOI)),
+                                OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
+      ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
+      scale_fill_gradient(low=col2,high=col1)+
+      guides(fill=guide_legend(title="%chg"))
     labs(title="C",x="Date",y="Expiry")+theme_bw()+theme_minimal()+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
-
+    
     
     p11 <- plot_OI_P %>% mutate(totalOIdiff=as.numeric(gsub("[$M]","",totalOIdiff)),
-                           totalOI=as.numeric(gsub("[$M]","",totalOI)),
-                           OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
-    ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
-    scale_fill_gradient(low=col2,high=col1)+
-    guides(fill=guide_legend(title="%chg"))
+                                totalOI=as.numeric(gsub("[$M]","",totalOI)),
+                                OI_diff_pct = as.numeric(gsub("%","",OI_diff_pct))) %>%
+      ggplot(aes(Date.td,expiry))+geom_tile(aes(fill=OI_diff_pct),colour="white")+
+      scale_fill_gradient(low=col2,high=col1)+
+      guides(fill=guide_legend(title="%chg"))
     labs(title="C",x="Date",y="Expiry")+theme_bw()+theme_minimal()+theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank())
-
+    
     
     
     
@@ -364,17 +365,17 @@ server <- function(input, output) {
       
       # geom_text(data=filter(dataC%>% arrange(-OI_Dollar.td) %>% slice(1:10), diff_oi_d<0),
       # 
-    #         aes(x=oid.td, y=st, label="Dn"),
-    # 
-    #         color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
-    # 
-    
-    
-    
-    
-    geom_text(data=dataC, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
-              
-              color=red, size=2.75, vjust=2.5) + #, family="Lato"
+      #         aes(x=oid.td, y=st, label="Dn"),
+      # 
+      #         color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+      # 
+      
+      
+      
+      
+      geom_text(data=dataC, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
+                
+                color=red, size=2.75, vjust=2.5) + #, family="Lato"
       
       geom_text(data=dataC,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,2),suffix='M')),
                 
@@ -396,14 +397,14 @@ server <- function(input, output) {
       
       # scale_y_discrete(expand=c(350,450)) +
       
-    
-    
-    labs(x=NULL, y=NULL, title=paste0("Call $OI for Expiry: ",{{expiry}}),
-         
-         subtitle=paste0("Top 20 Call Strikes Cover ",round({{pct_covered_C}},0),"%"," of $OI"),
-         
-        # caption=paste0("As of:\n\n" , lubridate::today())
-        )+
+      
+      
+      labs(x=NULL, y=NULL, title=paste0("Call $OI for Expiry: ",{{expiry}}),
+           
+           subtitle=paste0("Top 20 Call Strikes Cover ",round({{pct_covered_C}},0),"%"," of $OI"),
+           
+           # caption=paste0("As of:\n\n" , lubridate::today())
+      )+
       
       
       
@@ -455,17 +456,17 @@ server <- function(input, output) {
       #   
       #   #   geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d<0),
       #   
-    # #             aes(x=oid.td, y=st, label="Dn"),
-    # 
-    # #             color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
-    # 
-    # 
-    # 
-    # 
-    # 
-    geom_text(data=dataP, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
-              
-              color=red, size=2.75, vjust=2.5) + #, family="Lato"
+      # #             aes(x=oid.td, y=st, label="Dn"),
+      # 
+      # #             color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+      # 
+      # 
+      # 
+      # 
+      # 
+      geom_text(data=dataP, aes(x=OI_Dollar.td, y=strike, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
+                
+                color=red, size=2.75, vjust=2.5) + #, family="Lato"
       
       geom_text(data=dataP,aes(x=OI_Dollar.yt, y=strike, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,2),suffix='M')),
                 
@@ -488,13 +489,13 @@ server <- function(input, output) {
       
       # scale_y_discrete(expand=c(350,450)) +
       
-    
-    
-    labs(x=NULL, y=NULL, title=paste0("Puts $OI for Expiry: ",{{expiry}}),
-         
-         subtitle=paste0("Top 20 Put Strikes Cover ",round({{pct_covered_P}},0),"%"," of $OI"),
-         
-         caption=paste0("As of:\n\n" , lubridate::today()))+
+      
+      
+      labs(x=NULL, y=NULL, title=paste0("Puts $OI for Expiry: ",{{expiry}}),
+           
+           subtitle=paste0("Top 20 Put Strikes Cover ",round({{pct_covered_P}},0),"%"," of $OI"),
+           
+           caption=paste0("As of:\n\n" , lubridate::today()))+
       
       
       
@@ -524,145 +525,8 @@ server <- function(input, output) {
         
       )
     
-     output$gttable <- render_gt({
     
-    friday3 <- function(start.year, end.year,interval = "3 month"){
-      d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), by = "1 month")[-1]
-      d <- as.Date(d)
-      res <- lapply(d, function(x){
-        s <- seq(x, by = "day", length.out = 28)
-        i <- format(s, "%u") == "5"
-        s[i][3]
-      })
-      
-      res <- Reduce(c, res)
-      data.frame(Month = format(d, "%Y-%B"), Day = res)
-    }
-    
-   # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
-  #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
-    expiry <- input$weeklyexpiry
-    #print(weeklyExpiry)
-    
-    #weekdays(lubridate::today())
-    DAYTODAY = format(Sys.Date(), format="%Y%m%d")
-    DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
-    DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
-    # td <- readRDS(paste0("spy",DAYTODAY,".rds"))
-    # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
-    # iv <- bind_rows(td,yt)
-    # saveRDS(iv,paste0("iv",".rds"))
-    
-    iv <- readRDS(paste0("iv",".rds"))
-    
-    
-    percent_first <- function(x) {
-      
-      x <- sprintf("%d%%", round(x*100))
-      
-      x[2:length(x)] <- sub("%$", "", x[2:length(x)])
-      
-      x
-      
-    }
-    
-    
-    
-    blue <- "#0171CE"
-    
-    red <- "#DE4433"
-
-    cmp_C <- fread("cmpC.csv")
-    cmp_P <- fread("cmpP.csv")
-    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
-    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
-    
-    
-    
-    library(ggplot2)
-    library(bit64)
-    library(ggalt)
-    library(scales)
-    #library(tidyverse)
-    
-    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% slice(1:20)   #filter(cum_sep_OI<=90) %>% 
-    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>%  slice(1:20)  #filter(cum_sep_OI<=90) %>%
-    
-    pct_covered_C <- tblC %>% slice(n()) %>% pull(cum_sep_OI)
-    pct_covered_P <- tblP %>% slice(n()) %>% pull(cum_sep_OI)
-    
-    watchC <- tblC %>% select(-cum_sep_OI) %>% group_by(expiry) %>% 
-      mutate(totalOI = sum(OI_Dollar.td)) %>% 
-      mutate(diff_oi_d=round(diff_oi_d,0)) %>% 
-      #mutate(rnk=percent_rank(OI_Dollar)) %>%
-      mutate(OI_pct=round((OI_Dollar.td/totalOI),2)) %>% 
-      arrange(Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>% 
-      select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
-      mutate(strike=round(strike,0),
-             open_interest.td=scales::number(open_interest.td,big.mark=","),
-            OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
-             diff_oi=scales::number(diff_oi,big.mark=","),
-            diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
-             cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
-      setDT() 
-    
-    watchP <- tblP %>% select(-cum_sep_OI) %>% group_by(expiry) %>% 
-      mutate(totalOI = sum(OI_Dollar.td)) %>% 
-      mutate(diff_oi_d=round(diff_oi_d,0)) %>% 
-      #mutate(rnk=percent_rank(OI_Dollar)) %>%
-      mutate(OI_pct=round((OI_Dollar.td/totalOI),2)) %>% 
-      arrange(-Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>%
-      select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% 
-         mutate(strike=round(strike,0),
-             open_interest.td=scales::number(open_interest.td,big.mark=","),
-            OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
-             diff_oi=scales::number(diff_oi,big.mark=","),
-            diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
-
-             cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
-      setDT() 
-
-  #  watchC<-watchC %>% gt() %>% fmt_currency(columns = c(OI_Dollar.td,diff_oi_d),decimals=0) %>% 
-  #     #cols_hide(columns=-c(mfr,OI_Dollar,year,mpg,msrp)
-  #     cols_label_with(columns=everything(),fn=toupper) %>%
-  #     data_color(columns - diff_oi_d,method="numeric",palette= "virdis) %>%
-#sub_missing() %>%
-#opt_interactive(use_compact_mode=TRUE)
-
- #   watchP<-watchP %>% gt() %>% fmt_currency(columns = c(OI_Dollar.td,diff_oi_d),decimals=0) %>% 
- #      #cols_hide(columns=-c(mfr,OI_Dollar,year,mpg,msrp)
- #      cols_label_with(columns=everything(),fn=toupper) %>%
- #      data_color(columns - diff_oi_d,method="numeric",palette= "virdis) %>%
-#sub_missing() %>%
-#opt_interactive(use_compact_mode=TRUE)
-
-       watchC$PC<-"C"
-       watchP$PC<-"P"
-       compbinedPC<-bind_rows(watchC,watchP)
-       combinedPC<- as.factor(combinedPC$PC)
-
-       library(RColorBrewer)
-       pc_table<-function(x){
-         gt(x) %>%
-         data_color(columns="diff_oi_d",
-                    colors=col_numeric(palette="Blues",c(-1e4,1e7)))%>% #RdYlGn
-         fmt_currency(columns=c(diff_oi_d),decimals=0) %>%
-         col_label_with(columns=everything(),fn=toupper) %>%
-         tab_options(column_labels.hidden-TRUE) %>% as_raw_html()
-         }
-       combinedPC %>% arrange(OI_Dollar.td) %>%
-       group_by(relevel(factor(PC),"PC")) %>%
-                arrange(diff_oi_d) %>%
-                slice_head(n,20) %>%
-                select(strike,diff_oi_id)%>%
-                arrange(strike) %>%
-                group_map( ~pc_table(.x)) %>%
-                data.frame(.) %>%
-                setNames(.,c("C","P")) %>%
-                gt() %>%
-                fmt_markdown(columns=TRUE)
-                
-  # 
+    # 
     # output$plotseason <- renderPlot({
     #   
     #   stock_data_tbl <- input$symb %>% tq_get(from=input$seasonDates[1],to=input$seasonDates[2])
@@ -706,7 +570,7 @@ server <- function(input, output) {
     # },height = 760, width = 1200)
     
     
-  
+    
     # output$plotseasonDW <- renderPlot({
     #   
     #   stock_data_tbl <- input$symb %>% tq_get(from=input$dates[1],to=input$dates[2])
@@ -734,23 +598,23 @@ server <- function(input, output) {
     
     # TASK 
     
-
+    
     #grid.arrange(p10,p11,ncol=2)
-    #cowplot::plot_grid(
-    # gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
-    #                        arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
-    #                        
-    #                         clip = FALSE),
-    #  ncol = 1,labels = ""
-    #) 
+    cowplot::plot_grid(
+      gridExtra::arrangeGrob(grid.arrange(p3,p4,ncol=2),arrangeGrob(tableGrob(watchC, rows = NULL),tableGrob(watchP, rows = NULL),ncol = 2,as.table = TRUE),
+                             arrangeGrob(tableGrob(OI_C, rows = NULL),tableGrob(OI_P, rows = NULL),ncol = 2,as.table = TRUE),
+                             
+                             clip = FALSE),
+      ncol = 1,labels = ""
+    ) 
     
-
     
-
-    })
+    
+    
+    # })
+    
+  },height = 1400, width = 1200)
   
- # },height = 1400, width = 1200)
-
   
   
   output$plotoibystrike <- renderPlot({
@@ -836,17 +700,17 @@ server <- function(input, output) {
       
       # geom_text(data=filter(dataC%>% arrange(-OI_Dollar.td) %>% slice(1:10), diff_oi_d<0),
       # 
-    #         aes(x=oid.td, y=st, label="Dn"),
-    # 
-    #         color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
-    # 
-    
-    
-    
-    
-    geom_text(data=dataC, aes(x=OI_Dollar.td, y=expiry, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
-              
-              color=red, size=2.75, vjust=2.5) + #, family="Lato"
+      #         aes(x=oid.td, y=st, label="Dn"),
+      # 
+      #         color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+      # 
+      
+      
+      
+      
+      geom_text(data=dataC, aes(x=OI_Dollar.td, y=expiry, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
+                
+                color=red, size=2.75, vjust=2.5) + #, family="Lato"
       
       geom_text(data=dataC,aes(x=OI_Dollar.yt, y=expiry, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,2),suffix='M')),
                 
@@ -856,7 +720,7 @@ server <- function(input, output) {
       
       #geom_rect(data=dataC, aes(xmin=max(dataC$OI_Dollar.td)+1e5, xmax=max(dataC$OI_Dollar.td)+2e5, ymin=-Inf, ymax=Inf), fill="grey") +
       
-     # geom_text(data=filter(dataC, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
+      # geom_text(data=filter(dataC, diff_oi_d!=0), aes(label=scales::percent(cum_sep_OI/100), y=strike, x=max(dataC$OI_Dollar.td)+1.5e5), fontface="bold", size=3, family="Lato") +
       
       # geom_text(data=cmp_C,
       #
@@ -868,14 +732,14 @@ server <- function(input, output) {
       
       # scale_y_discrete(expand=c(350,450)) +
       
-    
-    
-    labs(x=NULL, y=NULL, title=paste0("Call $OI for Strike: ",{{strike}}),
-         
-         #subtitle="Change",
-         
-         # caption=paste0("As of:\n\n" , lubridate::today())
-    )+
+      
+      
+      labs(x=NULL, y=NULL, title=paste0("Call $OI for Strike: ",{{strike}}),
+           
+           #subtitle="Change",
+           
+           # caption=paste0("As of:\n\n" , lubridate::today())
+      )+
       
       
       
@@ -927,17 +791,17 @@ server <- function(input, output) {
       #   
       #   #   geom_text(data=filter(c%>% arrange(-oid.td) %>% slice(1:10), diff_oi_d<0),
       #   
-    # #             aes(x=oid.td, y=st, label="Dn"),
-    # 
-    # #             color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
-    # 
-    # 
-    # 
-    # 
-    # 
-    geom_text(data=dataP, aes(x=OI_Dollar.td, y=expiry, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
-              
-              color=red, size=2.75, vjust=2.5) + #, family="Lato"
+      # #             aes(x=oid.td, y=st, label="Dn"),
+      # 
+      # #             color=red, size=3, vjust=-1.5, fontface="bold", family="Lato")
+      # 
+      # 
+      # 
+      # 
+      # 
+      geom_text(data=dataP, aes(x=OI_Dollar.td, y=expiry, label=scales::dollar(round(c(OI_Dollar.td)/1e6,2),suffix='M')),
+                
+                color=red, size=2.75, vjust=2.5) + #, family="Lato"
       
       geom_text(data=dataP,aes(x=OI_Dollar.yt, y=expiry, label=scales::dollar(round(c(OI_Dollar.yt)/1e6,2),suffix='M')),
                 
@@ -958,15 +822,15 @@ server <- function(input, output) {
       
       # scale_x_continuous(expand=c(1e5,max(c$oid.td)+.5e7), limits=c(0, 1e6))
       
-    # scale_y_discrete(expand=c(350,450)) +
-    
-    
-    
-    labs(x=NULL, y=NULL, title=paste0("Puts $OI for Strike: ",{{strike}}),
-         
-         # subtitle="Change",
-         
-         caption=paste0("As of:\n\n" , lubridate::today()))+
+      # scale_y_discrete(expand=c(350,450)) +
+      
+      
+      
+      labs(x=NULL, y=NULL, title=paste0("Puts $OI for Strike: ",{{strike}}),
+           
+           # subtitle="Change",
+           
+           caption=paste0("As of:\n\n" , lubridate::today()))+
       
       
       
@@ -997,7 +861,7 @@ server <- function(input, output) {
       )
     
     
- 
+    
     cowplot::plot_grid(
       p5,p6,
       ncol = 2,labels = ""
@@ -1012,17 +876,17 @@ server <- function(input, output) {
   
   
   
- 
+  
   
   # get CBOE options
   # opts1 = CBOE_Options(symbol="_SPX",EXERCISE = "european")
   # opts2 = CBOE_Options(symbol="TSLA",EXERCISE = "american")
   
   
- # spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
-#  saveRDS(spy,paste0("spy",DAYTODAY,".rds"))
+  # spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
+  #  saveRDS(spy,paste0("spy",DAYTODAY,".rds"))
   
-
+  
   
   
   # library(dplyr)
@@ -1065,7 +929,7 @@ server <- function(input, output) {
   #        y     = "IV")
   # 
   # 
-
+  
   # 
   # 
   # monthlyexp <- spy %>%
@@ -1083,9 +947,153 @@ server <- function(input, output) {
   #        x     = "Strikes",
   #        y     = "IV")
   
+  
+  
+# Run the application
+
+  output$oigt <- render_gt({
+
+    friday3 <- function(start.year, end.year,interval = "3 month"){
+      d <- seq(ISOdate(start.year - 1, 12, 1), ISOdate(end.year, 12, 1), by = "1 month")[-1]
+      d <- as.Date(d)
+      res <- lapply(d, function(x){
+        s <- seq(x, by = "day", length.out = 28)
+        i <- format(s, "%u") == "5"
+        s[i][3]
+      })
+
+      res <- Reduce(c, res)
+      data.frame(Month = format(d, "%Y-%B"), Day = res)
+    }
+
+    # fridays <- seq.Date(input$dates2[1],input$dates2[2],by="1 day") #as.Date.character(input$dates2[1], format="%Y-%m-%d")
+    #  expiry <- head(fridays[weekdays(fridays)=="Friday"],1)
+    expiry <- input$weeklyexpiry
+    #print(weeklyExpiry)
+
+    #weekdays(lubridate::today())
+    DAYTODAY = format(Sys.Date(), format="%Y%m%d")
+    DAY1DAYSBACK = format(Sys.Date()-1, format="%Y-%m-%d")
+    DAY3DAYSBACK = format(Sys.Date()-4, format="%Y-%m-%d")
+    # td <- readRDS(paste0("spy",DAYTODAY,".rds"))
+    # yt <- readRDS(paste0("spy",format(Sys.Date()-1, format="%Y%m%d"),".rds"))
+    # iv <- bind_rows(td,yt)
+    # saveRDS(iv,paste0("iv",".rds"))
+
+    iv <- readRDS(paste0("iv",".rds"))
 
 
-}# Run the application
+    percent_first <- function(x) {
+
+      x <- sprintf("%d%%", round(x*100))
+
+      x[2:length(x)] <- sub("%$", "", x[2:length(x)])
+
+      x
+
+    }
+
+
+
+    blue <- "#0171CE"
+
+    red <- "#DE4433"
+
+    cmp_C <- fread("cmpC.csv")
+    cmp_P <- fread("cmpP.csv")
+    dataC <- cmp_C%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
+    dataP <- cmp_P%>% filter(expiry=={{expiry}}) %>% arrange(-OI_Dollar.td) %>% slice(1:20) %>% mutate(strike=as.factor(strike))
+
+
+
+    library(ggplot2)
+    library(bit64)
+    library(ggalt)
+    library(scales)
+    #library(tidyverse)
+
+    tblC <- cmp_C %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>% slice(1:20)   #filter(cum_sep_OI<=90) %>%
+    tblP <- cmp_P %>% filter(expiry=={{expiry}}) %>% filter(diff_oi!=0) %>% arrange(-OI_Dollar.td) %>% select(Watch,expiry,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>%  slice(1:20)  #filter(cum_sep_OI<=90) %>%
+
+    pct_covered_C <- tblC %>% slice(n()) %>% pull(cum_sep_OI)
+    pct_covered_P <- tblP %>% slice(n()) %>% pull(cum_sep_OI)
+
+    watchC <- tblC %>% select(-cum_sep_OI) %>% group_by(expiry) %>%
+      mutate(totalOI = sum(OI_Dollar.td)) %>%
+      mutate(diff_oi_d=round(diff_oi_d,0)) %>%
+      #mutate(rnk=percent_rank(OI_Dollar)) %>%
+      mutate(OI_pct=round((OI_Dollar.td/totalOI),2)) %>%
+      arrange(Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>%
+      select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>%
+      mutate(strike=round(strike,0),
+             open_interest.td=scales::number(open_interest.td,big.mark=","),
+             OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
+             #diff_oi=scales::number(diff_oi,big.mark=","),
+             #diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
+             cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
+      setDT()
+
+    watchP <- tblP %>% select(-cum_sep_OI) %>% group_by(expiry) %>%
+      mutate(totalOI = sum(OI_Dollar.td)) %>%
+      mutate(diff_oi_d=round(diff_oi_d,0)) %>%
+      #mutate(rnk=percent_rank(OI_Dollar)) %>%
+      mutate(OI_pct=round((OI_Dollar.td/totalOI),2)) %>%
+      arrange(-Watch) %>% mutate(cum_sep_OI = cumsum(OI_pct)) %>% ungroup() %>%
+      select(Watch,strike,open_interest.td,OI_Dollar.td,diff_oi,diff_oi_d,cum_sep_OI) %>%
+      mutate(strike=round(strike,0),
+             open_interest.td=scales::number(open_interest.td,big.mark=","),
+             OI_Dollar.td=scales::dollar(OI_Dollar.td/1e6,big.mark=",",suffix="M"),
+             #diff_oi=scales::number(diff_oi,big.mark=","),
+             #diff_oi_d=scales::dollar(diff_oi_d/1e6,big.mark=",",suffix="M"),
+
+             cum_sep_OI=scales::percent(cum_sep_OI,accuracy=2)) %>%
+      setDT()
+
+    #  watchC<-watchC %>% gt() %>% fmt_currency(columns = c(OI_Dollar.td,diff_oi_d),decimals=0) %>%
+    #     #cols_hide(columns=-c(mfr,OI_Dollar,year,mpg,msrp)
+    #     cols_label_with(columns=everything(),fn=toupper) %>%
+    #     data_color(columns - diff_oi_d,method="numeric",palette= "virdis) %>%
+    #sub_missing() %>%
+    #opt_interactive(use_compact_mode=TRUE)
+
+    #   watchP<-watchP %>% gt() %>% fmt_currency(columns = c(OI_Dollar.td,diff_oi_d),decimals=0) %>%
+    #      #cols_hide(columns=-c(mfr,OI_Dollar,year,mpg,msrp)
+    #      cols_label_with(columns=everything(),fn=toupper) %>%
+    #      data_color(columns - diff_oi_d,method="numeric",palette= "virdis) %>%
+    #sub_missing() %>%
+    #opt_interactive(use_compact_mode=TRUE)
+
+    watchC$PC<-"C"
+    watchP$PC<-"P"
+    combinedPC<-bind_rows(watchC,watchP)
+    combinedPC$PC<- as.factor(combinedPC$PC)
+
+    library(RColorBrewer)
+    pc_table<-function(x){
+      gt(x) %>%
+        #data_color(columns="diff_oi_d",colors=col_numeric(palette="Blues",c(-1e4,1e7)))%>% #RdYlGn
+        fmt_currency(columns=c(diff_oi_d),decimals=0) %>%
+        cols_label_with(columns=everything(),fn=toupper) %>%
+        tab_options(column_labels.hidden=TRUE) %>% as_raw_html()
+    }
+    combinedPC %>% 
+      arrange(OI_Dollar.td) %>%
+      #group_by(relevel(factor(PC),"PC")) %>%
+      group_by(PC,"PC") %>% 
+      arrange(diff_oi_d) %>%
+      slice_head(n=20) %>%
+      select(strike,diff_oi_d)%>%
+      arrange(strike) %>%
+      group_map( ~pc_table(.x)) %>%
+      data.frame(.) %>%
+      setNames(.,c("C","P")) %>%
+      gt() %>%
+      fmt_markdown(columns=TRUE)
+    
+  })
+
+}
+# Run the application
 shinyApp(ui = ui, server = server)
 
 
