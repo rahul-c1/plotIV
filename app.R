@@ -176,7 +176,7 @@ server <- function(input, output) {
   # })
 
 
-  output$oirct<-renderReacctable({
+  output$oirct<-renderReactable({
   OI_C<-fread("OI_C.csv")
   OI_P<-fread("OI_P.csv")
 
