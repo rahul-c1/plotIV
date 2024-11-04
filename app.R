@@ -194,8 +194,10 @@ server <- function(input, output) {
     select(-expiry)
 OI_C$PC<-"C"
     OI_PC<-"P"
+    
     combinedOI<-bind_rows(OI_C,OI_P)
-    reacatable(combinedOI)
+    
+    reactable(combinedOI)
     
     })
   output$plotoi <- renderPlot({
