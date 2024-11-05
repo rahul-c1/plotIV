@@ -193,7 +193,7 @@ server <- function(input, output) {
     arrange(desc(Date.td)) %>%
     select(-expiry)
 OI_C$PC<-"C"
-    OI_PC<-"P"
+OI_P$PC<-"P"
     
     combinedOI<-bind_rows(OI_C,OI_P)
     
