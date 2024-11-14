@@ -74,7 +74,7 @@ ui <- fluidPage(
       tabPanel("IV",airDatepickerInput("dates1",label = "Expiry month",value = format(iv_date, format="%Y-%m-%d"),maxDate = format(iv_date+365, format="%Y%m%d"), minDate = format(Sys.Date(), format="%Y-%m-%d"), view = "months",  minView = "months", dateFormat = "MMM-yyyy"),plotOutput("plotiv")),
       #tabPanel("$OI",dateRangeInput("dates2","Date range",start = Sys.Date(),end = ceiling_date(Sys.Date(),"month") - days(1)), plotOutput("plotoi")) #,
       tabPanel("$OI by Expiry",pickerInput("weeklyexpiry","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),plotOutput("plotoi")), #, , dataTableOutput("d1")
-      tabPanel("$OI by Strike",textInput("strike", "strike", value=450),plotOutput("plotoibystrike")), #,
+      tabPanel("$OI by Strike",textInput("strike", "strike", value=600),plotOutput("plotoibystrike")), #,
       tabPanel("$OI Key Levels",pickerInput("weeklyexpiry1","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),gt_output(outputId="oigt")) , #, dataTableOutput("d1")
       tabPanel("$OI Table",pickerInput("weeklyexpiry2","Expiry: ",choices = choicedt, options = list(`live-search` = TRUE)),reactableOutput("oirct")) #, , dataTableOutput("d1")
 
