@@ -36,7 +36,8 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git pull origin main --rebase
+          git fetch origin main
+          git pull origin main --no-edit || true
           git add --all
-          git commit -m "add data"
-          git push
+          git commit -m "add data" || echo "No changes to commit"
+          git push origin main
