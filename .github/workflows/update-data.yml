@@ -3,9 +3,9 @@ name: Update data
 on:
   schedule:
     # Runs at 8:00 AM EST (Nov to Mar) - shifted to 15 mins past the hour to avoid queue congestion
-    - cron: "15 13 * * 1-5"
+    - cron: "00 09 * * 1-5"
     # Runs at 8:00 AM EDT (Mar to Nov)
-    - cron: "15 12 * * 1-5"
+   # - cron: "00 08 * * 1-5"
     
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
