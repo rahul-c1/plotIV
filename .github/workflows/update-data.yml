@@ -10,6 +10,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+concurrency:
+  group: update-data-main
+  cancel-in-progress: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -27,7 +31,10 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get update
-          sudo apt-get install -y libquantlib0-dev libboost-all-dev
+          sudo apt-get install -y libboost-all-dev
+          sudo apt-get install -y libquantlib0-dev \
+            || sudo apt-get install -y libquantlib-dev \
+            || sudo apt-get install -y libquantlib0v5 libquantlib0v5-dev
 
       - name: Install dependencies
         run: |

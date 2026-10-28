@@ -145,14 +145,21 @@ update_data <- function(since_id) {
   # iv <- bind_rows(td,yt)
   # saveRDS(iv,paste0("iv",".rds"))
   iv <- readRDS(paste0("iv",".rds"))
-  max_dt <- unique(iv$Date) %>% tail(7) %>% head(1)
-  iv <- iv %>% filter(Date>max_dt)
-  
+  # Keep the most recent N trading snapshots (inclusive), never trim to a single date.
+  keep_days <- 7L
+  date_levels <- sort(unique(as.character(iv$Date)))
+  if (length(date_levels) > keep_days) {
+    keep_from <- date_levels[length(date_levels) - keep_days + 1L]
+    iv <- iv %>% filter(as.character(Date) >= keep_from)
+  }
+
   spy <- CBOE_Options(symbol="SPY",EXERCISE = "american")  #input$symb
-  
+
   saveRDS(spy,paste0("spy",format(Sys.Date(), format="%Y%m%d"),".rds"))
-  
-  iv <- bind_rows(iv,spy)
+
+  today_str <- as.character(Sys.Date())
+  iv <- iv %>% filter(as.character(Date) != today_str)
+  iv <- bind_rows(iv, spy)
   
   saveRDS(iv,paste0("iv",".rds"))
   
@@ -176,14 +183,25 @@ update_data <- function(since_id) {
     res <- Reduce(c, res)
     data.frame(Month = format(d, "%Y-%B"), Day = res)
   }
-  monthlyexpiry <- friday3(year(first),year(first)) %>% filter(Day>tail(choicedt,1)) %>% pull(2)# %>% head(1)
-  
-  choicedt <- c(choicedt,as.character(monthlyexpiry))
-  
-  weeklies4month <- iv %>% filter(expiry %in% choicedt) 
-  
-  last2Dates <- weeklies4month %>% count(Date) %>% slice_max(Date,n=2) %>% pull(Date)
-  
+  monthly_rows <- friday3(year(first), year(first)) %>% filter(Day > tail(choicedt, 1))
+  monthlyexpiry <- if (nrow(monthly_rows) > 0) as.character(monthly_rows$Day[1]) else character(0)
+
+  choicedt <- c(choicedt, monthlyexpiry)
+  choicedt <- choicedt[!is.na(choicedt) & nzchar(choicedt)]
+
+  weeklies4month <- iv %>% filter(expiry %in% choicedt)
+
+  last2Dates <- weeklies4month %>% count(Date) %>% slice_max(Date, n = 2) %>% pull(Date)
+  can_compare <- length(last2Dates) >= 2 && !any(is.na(last2Dates))
+
+  if (!can_compare) {
+    warning(
+      "Skipping cmpC/cmpP and OI summary update: need 2 distinct dates in iv for selected expiries; got: ",
+      paste(last2Dates, collapse = ", ")
+    )
+  }
+
+  if (can_compare) {
   yt_OI_C <- weeklies4month %>% filter(Date==last2Dates[2]) %>% 
     filter(Symbol=="SPY") %>%
     #  filter(option %like%  c("SPX22")) %>%
@@ -344,9 +362,8 @@ update_data <- function(since_id) {
   
  fwrite(OI_P,"OI_P.csv")
  fwrite(OI_C,"OI_C.csv")
-  
+  }
 
-  
 }
 
 # run update if it's a business day or yesterday was a business day
