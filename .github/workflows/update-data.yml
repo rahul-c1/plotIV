@@ -51,8 +51,13 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git fetch origin main
-          git pull origin main --no-edit || true
           git add --all
-          git commit -m "add data" || echo "No changes to commit"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "add data"
+          fi
+          git fetch origin main
+          # Rebase the data commit onto latest main (pull before commit fails with dirty CSV/RDS files).
+          git rebase origin/main
           git push origin main
