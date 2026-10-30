@@ -58,6 +58,6 @@ jobs:
             git commit -m "add data"
           fi
           git fetch origin main
-          # Rebase the data commit onto latest main (pull before commit fails with dirty CSV/RDS files).
-          git rebase origin/main
+          # Rebase onto latest main; prefer this run's generated data on conflicts.
+          git rebase -X theirs origin/main
           git push origin main
