@@ -353,12 +353,17 @@ update_data <- function(since_id) {
   
   OI_C$expiry<-as.character(OI_C$expiry)
   OI_P$expiry<-as.character(OI_P$expiry)
-  
 
+  new_oi_dates <- unique(as.character(OI_C_td$Date.td))
+  OI_C <- OI_C %>% filter(!Date.td %in% new_oi_dates)
+  OI_P <- OI_P %>% filter(!Date.td %in% new_oi_dates)
 
-  OI_P <- bind_rows(OI_P,OI_P_td)
-  
-  OI_C <- bind_rows(OI_C,OI_C_td)
+  OI_P <- bind_rows(OI_P, OI_P_td)
+  OI_C <- bind_rows(OI_C, OI_C_td)
+
+  # Safety net if history already contains duplicates
+  OI_C <- OI_C %>% distinct(Date.td, expiry, .keep_all = TRUE)
+  OI_P <- OI_P %>% distinct(Date.td, expiry, .keep_all = TRUE)
   
  fwrite(OI_P,"OI_P.csv")
  fwrite(OI_C,"OI_C.csv")
