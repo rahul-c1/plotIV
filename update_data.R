@@ -73,7 +73,7 @@ opts <- as.data.frame(dat$data$options)
   # fix last_trade_time
   opts$last_trade_time <- as.character(as.POSIXct(opts$last_trade_time,
                                                   format="%Y-%m-%dT%H:%M:%S"))
-  opts$stkClose <- df$data$close
+  opts$stkClose <- dat$data$close
   # add date pulled
   opts$Date = as.character(Sys.Date())
   # add Days to Expiration
@@ -88,17 +88,17 @@ opts <- as.data.frame(dat$data$options)
       tmp = try(EuropeanOptionImpliedVolatility(
         type = ifelse(opts$flag[ii] == "C","call","put"),
         value=as.numeric(opts$Mid)[ii],
-        underlying=as.numeric(df$data$close),
+        underlying=as.numeric(dat$data$close),
         strike=as.numeric(opts$strike)[ii],
         dividendYield=0,
         riskFreeRate=0,
         maturity=as.numeric(yearFraction(as.Date(opts$Date[ii]),
                                          as.Date(opts$expiry[ii]),
                                          1)),
-        volatility=as.numeric(df$data$iv30/100)),
+        volatility=as.numeric(dat$data$iv30/100)),
         silent=TRUE)
       if(inherits(tmp,'try-error')){
-        iv = round(as.numeric(df$data$iv30/100),4)
+        iv = round(as.numeric(dat$data$iv30/100),4)
       }else{
         iv = round(tmp[[1]],4)
       }
@@ -110,17 +110,17 @@ opts <- as.data.frame(dat$data$options)
       tmp = try(AmericanOptionImpliedVolatility(
         type = ifelse(opts$flag[ii] == "C","call","put"),
         value=as.numeric(opts$Mid)[ii],
-        underlying=as.numeric(df$data$close),
+        underlying=as.numeric(dat$data$close),
         strike=as.numeric(opts$strike)[ii],
         dividendYield=0,
         riskFreeRate=0,
         maturity=as.numeric(yearFraction(as.Date(opts$Date[ii]),
                                          as.Date(opts$expiry[ii]),
                                          1)),
-        volatility=as.numeric(df$data$iv30/100)),
+        volatility=as.numeric(dat$data$iv30/100)),
         silent=TRUE)
       if(inherits(tmp,'try-error')){
-        iv = round(as.numeric(df$data$iv30/100),4)
+        iv = round(as.numeric(dat$data$iv30/100),4)
       }else{
         iv = round(tmp[[1]],4)
       }
