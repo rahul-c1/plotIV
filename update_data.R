@@ -31,6 +31,10 @@ getEFS = function(x)
 CBOE_Options = function(symbol,EXERCISE){
   # url to get options - will read in all using json
   #url = "https://cdn.cboe.com/api/global/delayed_quotes/options/_SPX.json"
+  options(HTTPUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+# Your existing code
+#spy_data <- jsonlite::fromJSON("https://cdn.cboe.com/api/global/delayed_quotes/options/SPY.json")
   url = paste0("https://cdn.cboe.com/api/global/delayed_quotes/options/",symbol,".json")
   # read in data from page
   df = read_json(url,simplifyVector = TRUE)
