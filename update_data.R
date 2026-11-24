@@ -31,11 +31,28 @@ getEFS = function(x)
 CBOE_Options = function(symbol,EXERCISE){
   # url to get options - will read in all using json
   #url = "https://cdn.cboe.com/api/global/delayed_quotes/options/_SPX.json"
-  options(HTTPUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+  # Mimic a standard web browser request
+
+ # options(HTTPUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
 # Your existing code
 #spy_data <- jsonlite::fromJSON("https://cdn.cboe.com/api/global/delayed_quotes/options/SPY.json")
   url = paste0("https://cdn.cboe.com/api/global/delayed_quotes/options/",symbol,".json")
+  df <- GET(
+  url,
+  add_headers(
+    `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    `Accept` = "application/json"
+  )
+)
+
+# Check if it succeeded (200 = OK) before parsing
+if (status_code(df) == 200) {
+  raw_text <- content(df, as = "text", encoding = "UTF-8")
+  spy_data <- fromJSON(raw_text)
+} else {
+  stop("Request failed with status: ", status_code(response))
+}
   # read in data from page
   df = read_json(url,simplifyVector = TRUE)
   # convert as data frame
