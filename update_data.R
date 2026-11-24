@@ -54,7 +54,7 @@ if (status_code(df) == 200) {
   stop("Request failed with status: ", status_code(response))
 }
   # read in data from page
-  df = read_json(url,simplifyVector = TRUE)
+ # df = read_json(url,simplifyVector = TRUE)
   # convert as data frame
   opts = as.data.frame(df$data$options)
   # get Expiration, Flag, & Strike
