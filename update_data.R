@@ -37,26 +37,35 @@ CBOE_Options = function(symbol,EXERCISE){
 
 # Your existing code
 #spy_data <- jsonlite::fromJSON("https://cdn.cboe.com/api/global/delayed_quotes/options/SPY.json")
-  url = paste0("https://cdn.cboe.com/api/global/delayed_quotes/options/",symbol,".json")
-  df <- GET(
-  url,
+url <- paste0("https://cdn.cboe.com/api/global/delayed_quotes/options/", symbol, ".json")
+
+resp <- RETRY(
+  "GET", url,
   add_headers(
-    `User-Agent` = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    `Accept` = "application/json"
-  )
+    `User-Agent`      = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    `Accept`          = "application/json, text/plain, */*",
+    `Accept-Language` = "en-US,en;q=0.9",
+    `Referer`         = "https://www.cboe.com/",
+    `Origin`          = "https://www.cboe.com"
+  ),
+  times = 3, pause_base = 2, terminate_on = c(403, 404)
 )
 
-# Check if it succeeded (200 = OK) before parsing
-if (status_code(df) == 200) {
-  raw_text <- content(df, as = "text", encoding = "UTF-8")
-  spy_data <- fromJSON(raw_text)
-} else {
-  stop("Request failed with status: ", status_code(response))
+if (status_code(resp) != 200) {
+  # print the body: an Akamai "Access Denied ... Reference #" page means an IP/bot block
+  cat(substr(content(resp, as = "text", encoding = "UTF-8"), 1, 500), "\n")
+  stop("Request failed with status: ", status_code(resp))
 }
+
+dat <- fromJSON(content(resp, as = "text", encoding = "UTF-8"), simplifyVector = TRUE)
+
+opts <- as.data.frame(dat$data$options)
+
+
   # read in data from page
  # df = read_json(url,simplifyVector = TRUE)
   # convert as data frame
-  opts = as.data.frame(df$data$options)
+  #opts = as.data.frame(df$data$options)
   # get Expiration, Flag, & Strike
   efs <- getEFS(opts$option)
   # combine with options data
