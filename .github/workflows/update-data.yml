@@ -32,6 +32,7 @@ jobs:
         run: |
           sudo add-apt-repository universe
           sudo apt-get update
+          sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
           sudo apt-get install -y libboost-all-dev
           sudo apt-get install -y libquantlib0-dev \
             || sudo apt-get install -y libquantlib-dev \
@@ -39,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          install.packages(c("gt","readr","gridExtra","tidyquant","xts","quantmod","tsbox","xts","dbplyr","RQuantLib","shinyWidgets","ggplot2", "jsonlite", "dplyr", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod","ggalt","clipr","scales"))
+          install.packages(c("curl","gt","readr","gridExtra","tidyquant","xts","quantmod","tsbox","xts","dbplyr","RQuantLib","shinyWidgets","ggplot2", "jsonlite", "dplyr", "stringr", "lubridate", "derivmkts","pbapply","httr","rvest","purrr","data.table","quantmod","ggalt","clipr","scales"))
         shell: Rscript {0}
 
       - name: Update data
